@@ -1,6 +1,7 @@
 'use strict';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo2.openi-ict.eu');
+var request = supertest('https://peat.wizeoni.com');
 var assert = require('chai').assert;
 
 var token;
@@ -12,10 +13,10 @@ var testType = {
    "@context"  : [
       {
          "@property_name": "stringArray",
-         "@openi_type"   : "string",
+         "@data_type"   : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@context_id"   : "Array of Strings"
+         "@context"   : "Array of Strings"
       }
    ]
 };
@@ -42,7 +43,7 @@ describe('-----TYPES API-----\n  Create Type', function () {
 describe('Get Types', function () {
    it('Get Single Type', function () {
       this.timeout(10000);
-      return request.get('/api/v1/types/t_55498fbeed28c6a26946af8643e2743d-167')
+      return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
          .expect('content-type', 'application/json; charset=utf-8')
          .expect(function (response) {
             var body = JSON.parse(response.text);
@@ -75,6 +76,7 @@ describe('Get Types', function () {
          .expect(200);
    });
 });
+
 
 
 //-----Authentication API-----
@@ -243,6 +245,8 @@ describe('-----Permissions API-----\n  Create Permissions', function () {
 
 //-----Objects API-----
 
+console.log(testType["@id"])
+
 var objectid;
 var object;
 
@@ -251,7 +255,7 @@ describe('-----Objects API-----\n  Create Objects', function () {
       this.timeout(10000);
       return request.post('/api/v1/objects')
          .send({
-            "@openi_type": testType["@id"],
+            "@type": testType["@id"],
             "@data"      : {
                "stringArray": [
                   "mock string 1",
@@ -277,7 +281,7 @@ describe('-----Objects API-----\n  Create Objects', function () {
          .expect(function (response) {
             var body = JSON.parse(response.text);
             assert(body["@id"] !== undefined, 'Object body should have "@id" key');
-            assert(body["@openi_type"] !== testType["@openi_type"], 'Object type should be '+testType["@openi_type"]);
+            assert(body["@data_type"] !== testType["@data_type"], 'Object type should be '+testType["@data_type"]);
             object = body
          });
    });

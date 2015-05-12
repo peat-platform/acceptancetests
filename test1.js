@@ -281,7 +281,7 @@ describe('-----Objects API-----\n  Create Objects', function () {
          .expect(function (response) {
             var body = JSON.parse(response.text);
             assert(body["@id"] !== undefined, 'Object body should have "@id" key');
-            assert(body["@data_type"] !== testType["@data_type"], 'Object type should be '+testType["@data_type"]);
+            assert(body["@type"] !== testType["@type"], 'Object type should be '+testType["@type"]);
             object = body
          });
    });

@@ -1,6 +1,7 @@
 'use strict';
+//process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo2.openi-ict.eu');
+var request = supertest('https://demo1.peat-platform.org');
 var assert = require('chai').assert;
 
 var token;
@@ -12,10 +13,10 @@ var testType = {
    "@context"  : [
       {
          "@property_name": "stringArray",
-         "@openi_type"   : "string",
+         "@data_type"    : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@context_id"   : "Array of Strings"
+         "@context"      : "Array of Strings"
       }
    ]
 };
@@ -42,11 +43,11 @@ describe('Types API', function () {
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
-         return request.get('/api/v1/types/t_55498fbeed28c6a26946af8643e2743d-167')
+         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["@reference"] === testType["@reference"], "Body should contain correct Type reference")
+               assert(body["@reference"] === testType["@reference"], "Body should contain correct Type reference");
                testType = body
             })
             .expect(200);
@@ -109,7 +110,7 @@ describe('Authentication API', function () {
                assert(body["error"] === "The password length must be between 6 and 80 characters.", 'Password Strength error should be returned')
             });
       });
-      it('should create an OPENi user', function () {
+      it('should create a user', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/users')
             .send(user)
@@ -176,7 +177,7 @@ describe('Authentication API', function () {
       });
    });
    describe('Authorization', function () {
-      it('should authorize client to access OPENi on behalf of user', function () {
+      it('should authorize client to access data on behalf of user', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/authorizations')
             .send({
@@ -256,7 +257,7 @@ describe('Objects API', function () {
          this.timeout(10000);
          return request.post('/api/v1/objects')
             .send({
-               "@openi_type": testType["@id"],
+               "@type": testType["@id"],
                "@data"      : {
                   "stringArray": [
                      "mock string 1",
@@ -284,7 +285,7 @@ describe('Objects API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, 'Object body should have "@id" key');
-               assert(body["@openi_type"] !== testType["@openi_type"], 'Object type should be ' + testType["@openi_type"]);
+               assert(body["@type"] !== testType["@type"], 'Object type should be ' + testType["@type"]);
                object = body
             });
       });
@@ -346,9 +347,9 @@ var createUser = function (username, password) {
             assert(response.status == 201, 'Status should be "201".');
          }
       });
-   /*.then(function (err, res) {
-    return getUserSession(username, password);
-    });*/
+   //.then(function (err, res) {
+   // return getUserSession(username, password);
+   // });
 };
 
 var getUserSession = function (username, password) {
@@ -367,9 +368,9 @@ var getUserSession = function (username, password) {
          assert(body["session"] !== undefined, 'User session should be returned');
          userSession = body["session"];
       });
-   /*.then(function (err, res) {
-    return authenticate(username, password, body["session"]);
-    })*/
+   //.then(function (err, res) {
+   // return authenticate(username, password, body["session"]);
+   // })
 };
 
 var authenticate = function (username, password, userSession) {
@@ -391,9 +392,9 @@ var authenticate = function (username, password, userSession) {
          assert(body["session"] !== undefined, 'Authorization session should be returned');
          userToken = body["session"];
       });
-   /*.then(function (err, res) {
-    return setPermission(testType["@id"], body["session"]);
-    });*/
+   //.then(function (err, res) {
+   // return setPermission(testType["@id"], body["session"]);
+   // });
 };
 
 var setPermission = function (typeID, userToken) {
@@ -448,7 +449,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest1", "UserTest1")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest1", "UserTest1", userSession)
       });
@@ -466,7 +467,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest2", "UserTest2")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest2", "UserTest2", userSession)
       });
@@ -484,7 +485,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest3", "UserTest3")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest3", "UserTest3", userSession)
       });
@@ -502,7 +503,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest4", "UserTest4")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest4", "UserTest4", userSession)
       });
@@ -520,7 +521,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest5", "UserTest5")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest5", "UserTest5", userSession)
       });
@@ -538,7 +539,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest6", "UserTest6")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest6", "UserTest6", userSession)
       });
@@ -556,7 +557,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest7", "UserTest7")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest7", "UserTest7", userSession)
       });
@@ -574,7 +575,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest8", "UserTest8")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest8", "UserTest8", userSession)
       });
@@ -592,7 +593,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest9", "UserTest9")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest9", "UserTest9", userSession)
       });
@@ -610,7 +611,7 @@ describe('Test Users', function () {
          this.timeout(10000);
          return getUserSession("UserTest10", "UserTest10")
       });
-      it('should authorize application to access OPENi on behalf of user', function () {
+      it('should authorize application to access data on behalf of user', function () {
          this.timeout(10000);
          return authenticate("UserTest10", "UserTest10", userSession)
       });

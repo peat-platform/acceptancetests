@@ -1,7 +1,7 @@
 'use strict';
-//process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo1.peat-platform.org');
+var request = supertest('https://dev.peat-platform.org');
 var assert = require('chai').assert;
 
 var token;

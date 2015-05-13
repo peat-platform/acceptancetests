@@ -1,7 +1,7 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.peat-platform.org');
+var request = supertest('https://demo1.peat-platform.org');
 var assert = require('chai').assert;
 
 var token;
@@ -241,7 +241,7 @@ describe('Permissions API', function () {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
             })
-            .expect(200)
+            //.expect(200)
       });
    });
 });
@@ -314,10 +314,11 @@ describe('Objects API', function () {
             .set('Authorization', token)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
+               console.log("eeeeerrr", response)
                var body = JSON.parse(response.text);
                assert(response.status === 200, "Should be 200 for successful delete")
             })
-            .expect(200)
+            //.expect(200)
       })
    });
 });

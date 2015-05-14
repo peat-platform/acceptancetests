@@ -126,7 +126,6 @@ describe('Service Enablers', function () {
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               console.log(body)
                assert(body["cloudlet"] !== undefined, 'Cloudlet should be returned with client details');
                assert(body["api_key"] !== undefined, '"api_key" should be returned with client details');
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
@@ -351,7 +350,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
                      assert(parseInt(body["meta"]["total_count"]) > 0);
                      AppView = body;
                   });
@@ -365,7 +363,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
                      assert(parseInt(body["meta"]["total_count"]) > 0);
                      SEView = body;
                   });

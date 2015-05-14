@@ -88,7 +88,7 @@ var AppDeveloper = {
 describe('Service Enablers', function () {
    describe('Setup', function () {
       describe('Creating Types', function () {
-         it('should create GenericEntry Type', function () {
+         it('should create GenericEntry Type for use by test', function () {
             this.timeout(10000);
             return request.post('/api/v1/types')
                .send(testType)
@@ -203,22 +203,6 @@ describe('Service Enablers', function () {
             });
       });
 
-      it('should create GenericEntry Type for use by Application', function () {
-         this.timeout(10000);
-         return request.post('/api/v1/types')
-            .send(testType)
-            .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
-            .expect(function (response) {
-               var body = JSON.parse(response.text);
-               if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
-                  assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
-               }
-               else {
-                  assert(body["@id"] !== undefined, 'Type ID should be returned');
-               }
-            });
-      });
 
       it('should create SE permissions for App', function () {
          this.timeout(10000);

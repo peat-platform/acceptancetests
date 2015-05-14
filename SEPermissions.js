@@ -55,25 +55,25 @@ var AppDeveloper = {
    //Hardcoded... NOT GOOD
    permissions: [
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "CREATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
          "type"        : "type",
          "access_level": "CLOUDLET",
          "access_type" : "READ"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "UPDATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "DELETE"
@@ -86,6 +86,26 @@ var AppDeveloper = {
 };
 
 describe('Service Enablers', function () {
+   describe('Setup', function () {
+      describe('Creating Types', function () {
+         it('should create GenericEntry Type', function () {
+            this.timeout(10000);
+            return request.post('/api/v1/types')
+               .send(testType)
+               .set('Accept', 'application/json')
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
+                     assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
+                  }
+                  else {
+                     assert(body["@id"] !== undefined, 'Type ID should be returned');
+                  }
+               });
+         });
+      });
+   });
    describe('Create Service Enabler', function () {
       it('should create the user "SEDeveloper" on the platform', function () {
          this.timeout(10000);
@@ -211,7 +231,6 @@ describe('Service Enablers', function () {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
-            .expect(200)
       });
 
    });
@@ -286,7 +305,6 @@ describe('Service Enablers', function () {
                body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
-            .expect(200)
       };
 
       var i;
@@ -318,7 +336,7 @@ describe('Service Enablers', function () {
                this.timeout(10000);
                return request.post('/api/v1/objects')
                   .send({
-                     "@openi_type": "t_078c98b96af6474768d74f916ca70286-163",
+                     "@openi_type": "t_55498fbeed28c6a26946af8643e2743d-167",
                      "@data": {
                         "stringArray": [
                            "mock string " + Math.floor(Math.random() * 101),
@@ -332,7 +350,7 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     assert(body["@id"] !== undefined, "Object ID Should be returned");
+                     assert(body["@id"] !== undefined, "Object ID Should be returned. Received \n\t"+JSON.stringify(body));
                   })
             });
          });
@@ -350,9 +368,11 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
-                     assert(parseInt(body["meta"]["total_count"]) > 0);
-                     AppView = body;
+                     assert(body["meta"] !== undefined, "Responce should contain 'meta' key");
+                     assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Application Viewpoint should not be 0");
+                     if(parseInt(body["meta"]["total_count"]) > 0) {
+                        AppView = body;
+                     }
                   });
             });
 
@@ -365,8 +385,10 @@ describe('Service Enablers', function () {
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
                      //console.log(JSON.stringify(body));
-                     assert(parseInt(body["meta"]["total_count"]) > 0);
-                     SEView = body;
+                     assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
+                     if(parseInt(body["meta"]["total_count"]) > 0) {
+                        SEView = body;
+                     }
                   });
             });
 

@@ -1,7 +1,7 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo2.openi-ict.eu');
+var request = supertest('https://dev.openi-ict.eu');
 var assert = require('chai').assert;
 
 var token;
@@ -20,6 +20,23 @@ var testType = {
       }
    ]
 };
+
+var dev_user = {
+   "username": "platformTestDev",
+   "password": "platformTestDev"
+};
+
+var user = {
+   "username": "platformTest",
+   "password": "platformTest"
+};
+
+var client = {
+   "name"       : "MochaTest",
+   "description": "Client used for testing of the platform"
+};
+var session = "";
+token = "";
 
 describe('Types API', function () {
    describe('Creating Types', function () {
@@ -83,16 +100,6 @@ describe('Types API', function () {
 
 //-----Authentication API-----
 
-var user = {
-   "username": "platformTest",
-   "password": "platformTest"
-};
-var client = {
-   "name"       : "MochaTest",
-   "description": "Client used for testing of the platform"
-};
-var session = "";
-token = "";
 
 describe('Authentication API', function () {
    describe('Users', function () {
@@ -126,6 +133,22 @@ describe('Authentication API', function () {
                }
             });
       });
+      it('should create a user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/users')
+            .send(dev_user)
+            .set('Accept', 'application/json')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
+                  assert(response.status == 409, 'Error 409 Should be returned if user already exists')
+               }
+               else {
+                  assert(response.status == 201, 'Status should be "201".');
+               }
+            });
+      });
    });
    describe('Session', function () {
       it('should receive error about incorrect details', function () {
@@ -147,8 +170,8 @@ describe('Authentication API', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/sessions')
             .send({
-               "username": "platformTest",
-               "password": "platformTest"
+               "username": "platformTestDev",
+               "password": "platformTestDev"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -187,7 +210,6 @@ describe('Authentication API', function () {
                secret  : client.secret
             })
             .set('Accept', 'application/json')
-            .set('Authorization', session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -309,6 +331,8 @@ describe('Objects API', function () {
    describe('Deleting Objects', function () {
       it('should delete GenericEntry Object', function () {
          this.timeout(10000);
+         setTimeout(function(){
+
          return request.delete('/api/v1/objects/' + objectid)
             .set('Authorization', token)
             //.expect('content-type', 'application/json; charset=utf-8')
@@ -316,7 +340,8 @@ describe('Objects API', function () {
                var body = JSON.parse(response.text);
                assert(response.status === 200, "Should be 200 for successful delete")
             })
-            //.expect(200)
+            .expect(200)
+         }, 3000)
       })
    });
 });

@@ -4,7 +4,7 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo1.peat-platform.org');
+var request = supertest('https://dev.peat-platform.org');
 var assert = require('chai').assert;
 
 
@@ -208,7 +208,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
             .expect(200)
       });
@@ -283,7 +283,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
             .expect(200)
       };

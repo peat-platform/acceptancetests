@@ -179,7 +179,7 @@ var large_obj = {
       "string"    : "mock string",
       "float"     : 3452.234,
       "url"       : "https://dev.openi-ict.eu/admin/",
-      "date"      : "20-03-1990",
+      "date"      : "06-03-1990",
       "timestamp" : "2014-04-20 10:32:55.339",
       "gps"       : "52.29504228453735,-7.895050048828125",
       "hex"       : "345AF345",
@@ -277,22 +277,41 @@ var permissions_manifest = [
 
 
 var dev_user = {
-   "username": "platformTestDev",
-   "password": "platformTestDev"
+   "username": "acceptance_test_platformTestDev",
+   "password": "acceptance_test_platformTestDev"
 };
 
 var user = {
-   "username": "platformTest",
-   "password": "platformTest"
+   "username": "acceptance_test_platformTest",
+   "password": "acceptance_test_platformTest"
 };
 
 var client = {
    "name"       : "Create Object Test Client",
+   "isTest"     : true,
    "description": "Client used for testing of the platform"
 };
 
 var app_developer_session = "";
 var auth_token            = "";
+
+
+describe('Teardown', function () {
+   it('should delete', function () {
+      this.timeout(10000);
+      return request.delete('/api/v1/crud/users/users_' + dev_user.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+
+   })
+   it('should delete', function () {
+      this.timeout(10000);
+      return request.delete('/api/v1/crud/users/users_' + user.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+   })
+})
+
 
 describe('Types API', function () {
    describe('Creating Types', function () {
@@ -301,6 +320,7 @@ describe('Types API', function () {
          return request.post('/api/v1/types')
             .send(sub_type_type)
             .set('Accept', 'application/json')
+            .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -391,12 +411,7 @@ describe('Setup App developer and user', function () {
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
-                  assert(response.status == 409, 'Error 409 Should be returned if user already exists')
-               }
-               else {
-                  assert(response.status == 201, 'Status should be "201".');
-               }
+               assert(response.status == 201, 'Status should be "201".');
             });
       });
       it('should create a developer user', function () {
@@ -407,12 +422,7 @@ describe('Setup App developer and user', function () {
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
-                  assert(response.status == 409, 'Error 409 Should be returned if user already exists')
-               }
-               else {
-                  assert(response.status == 201, 'Status should be "201".');
-               }
+               assert(response.status == 201, 'Status should be "201".');
             });
       });
    });
@@ -469,12 +479,31 @@ describe('Setup App developer and user', function () {
    });
 });
 
+//-----Permissions API-----
+
+describe('Permissions API', function () {
+   describe('Test Permissions Not set', function () {
+
+      it('should throw permission denied errror when I try to create sub_obj_1', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/objects')
+            .send(sub_obj_1)
+            .set('Accept', 'application/json')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body, { error: 'permission denied' }, "Should say permission denied");
+            })
+      })
+   })
+});
+
 
 //-----Permissions API-----
 
 describe('Permissions API', function () {
    describe('Creating Permissions', function () {
-
       it('should create GenericEntry permissions for client', function () {
          this.timeout(10000);
          return request.post('/api/v1/permissions')

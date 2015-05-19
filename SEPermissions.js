@@ -36,6 +36,7 @@ var SEDeveloper = {
    client     : {
       name       : "Discovery Service",
       isSE       : true,
+      isTest     : true,
       description: "This service enables apps to add social networks features by allowing them search for other users of the app"
    }
 
@@ -50,6 +51,7 @@ var AppDeveloper = {
    },
    client     : {
       name       : "Find-a-Friend",
+      isTest     : true,
       description: "This application uses the Discovery SE to allow users to find their friends, somehow."
    },
    //Hardcoded... NOT GOOD

@@ -3,9 +3,10 @@
  */
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.openi-ict.eu');
-var assert = require('chai').assert;
+var supertest        = require('supertest-as-promised');
+var request          = supertest('https://dev.openi-ict.eu');
+var internal_request = supertest('https://dev.openi-ict.eu:8443');
+var assert           = require('chai').assert;
 
 
 //describe('Service Enablers', function () {
@@ -223,7 +224,7 @@ describe('Service Enablers', function () {
          this.timeout(10000);
 
 
-         return request.put('/api/v1/app_permissions')
+         return internal_request.put('/api/v1/app_permissions')
             .send({
                "app_api_key"      : AppDeveloper.client.api_key,
                "permissions"      : AppDeveloper.permissions,
@@ -303,7 +304,7 @@ describe('Service Enablers', function () {
 
       var setPermission = function (userToken) {
          var body;
-         return request.post('/api/v1/permissions/' + AppDeveloper.client.api_key)
+         return internal_request.post('/api/v1/permissions/' + AppDeveloper.client.api_key)
             .send(AppDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', userToken)
@@ -316,7 +317,7 @@ describe('Service Enablers', function () {
 
       var setPermissionSE = function (userToken) {
          var body;
-         return request.post('/api/v1/permissions/' + SEDeveloper.client.api_key)
+         return internal_request.post('/api/v1/permissions/' + SEDeveloper.client.api_key)
             .send(AppDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', userToken)

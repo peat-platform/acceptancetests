@@ -1,8 +1,9 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.openi-ict.eu');
-var assert = require('chai').assert;
+var supertest        = require('supertest-as-promised');
+var request          = supertest('https://dev.openi-ict.eu');
+var internal_request = supertest('https://dev.openi-ict.eu:8443');
+var assert           = require('chai').assert;
 
 //-----TYPES API-----
 
@@ -286,27 +287,48 @@ var user = {
    "password": "acceptance_test_platformTest"
 };
 
+var user_2 = {
+   "username": "acceptance_test_platformTest_2",
+   "password": "acceptance_test_platformTest_2"
+};
+
 var client = {
    "name"       : "Create Object Test Client",
    "isTest"     : true,
    "description": "Client used for testing of the platform"
 };
 
+
+var client_2 = {
+   "name"       : "Create Object Test Client Number 2",
+   "isTest"     : true,
+   "description": "Client used for testing of the platform no 2"
+};
+
 var app_developer_session = "";
+var user_session          = "";
+var user_session_2          = "";
 var auth_token            = "";
+var auth_token_2          = "";
 
 
 describe('Teardown', function () {
    it('should delete', function () {
       this.timeout(10000);
-      return request.delete('/api/v1/crud/users/users_' + dev_user.username)
+      return internal_request.delete('/api/v1/crud/users/users_' + dev_user.username)
          .set('Accept', 'application/json')
          .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
 
    })
    it('should delete', function () {
       this.timeout(10000);
-      return request.delete('/api/v1/crud/users/users_' + user.username)
+      return internal_request.delete('/api/v1/crud/users/users_' + user.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+   })
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_' + user_2.username)
          .set('Accept', 'application/json')
          .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
    })
@@ -414,6 +436,17 @@ describe('Setup App developer and user', function () {
                assert(response.status == 201, 'Status should be "201".');
             });
       });
+      it('should create a second user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/users')
+            .send(user_2)
+            .set('Accept', 'application/json')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(response.status == 201, 'Status should be "201".');
+            });
+      });
       it('should create a developer user', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/users')
@@ -428,7 +461,7 @@ describe('Setup App developer and user', function () {
    });
    describe('Get app developer Session', function () {
 
-      it('should create user session', function () {
+      it('should create developer session', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/sessions')
             .send(dev_user)
@@ -438,6 +471,32 @@ describe('Setup App developer and user', function () {
                var body = JSON.parse(response.text);
                assert(body["session"] !== undefined, 'User session should be returned');
                app_developer_session = body["session"];
+            });
+      })
+
+      it('should create user session', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/sessions')
+            .send(user)
+            .set('Accept', 'application/json')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["session"] !== undefined, 'User session should be returned');
+               user_session = body["session"];
+            });
+      });
+
+      it('should create user session for seond user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/sessions')
+            .send(user_2)
+            .set('Accept', 'application/json')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["session"] !== undefined, 'User session should be returned');
+               user_session_2 = body["session"];
             });
       });
    });
@@ -476,6 +535,23 @@ describe('Setup App developer and user', function () {
                auth_token = body["session"];
             });
       });
+      it('should authorize client to access data on behalf of second user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/authorizations')
+            .send({
+               username: user_2.username,
+               password: user_2.password,
+               api_key : client.api_key,
+               secret  : client.secret
+            })
+            .set('Accept', 'application/json')
+            //.expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["session"] !== undefined, 'Authorization session should be returned');
+               auth_token_2 = body["session"];
+            });
+      });
    });
 });
 
@@ -504,9 +580,9 @@ describe('Permissions API', function () {
 
 describe('Permissions API', function () {
    describe('Creating Permissions', function () {
-      it('should create GenericEntry permissions for client', function () {
+      it('should create GenericEntry permissions for client and user', function () {
          this.timeout(10000);
-         return request.post('/api/v1/permissions/' + client.api_key)
+         return internal_request.post('/api/v1/permissions/' + client.api_key)
             .send(permissions_manifest)
             .set('Accept', 'application/json')
             .set('Authorization', auth_token)
@@ -515,7 +591,20 @@ describe('Permissions API', function () {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
             })
-            //.expect(200)
+         //.expect(200)
+      });
+      it('should create GenericEntry permissions for client and second user', function () {
+         this.timeout(10000);
+         return internal_request.post('/api/v1/permissions/' + client.api_key)
+            .send(permissions_manifest)
+            .set('Accept', 'application/json')
+            .set('Authorization', auth_token_2)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["status"] === 'update', 'Permission status should be updated')
+            })
+         //.expect(200)
       });
    });
 });
@@ -593,6 +682,19 @@ describe('Objects API', function () {
                   large_obj["@id"] = body["@id"]
                })
          })
+         ,
+         it('should create large_obj for second user', function () {
+            this.timeout(10000);
+            return request.post('/api/v1/objects')
+               .send(large_obj)
+               .set('Accept', 'application/json')
+               .set('Authorization', auth_token_2)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert(body["@id"] !== undefined, "Object ID Should be returned");
+               })
+         })
    });
    describe('Reading Objects', function () {
       it('should Read large_obj Object', function () {
@@ -648,7 +750,205 @@ describe('Objects API', function () {
                                     }
                                  }, 'Object @data not matching');
             });
-      });
+      }),
+
+         it('Read all objects', function () {
+            this.timeout(10000);
+            return request.get('/api/v1/objects/')
+               .set('Authorization', auth_token)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         5, 'Should read 0');
+               });
+         })
+      it('Read all objects for second user', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', auth_token_2)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
    });
 });
+
+
+describe("Testing App token Isolation", function(){
+
+   describe('Create Test Client/App', function () {
+      it('should create client on platform using user details', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/clients')
+            .send(client_2)
+            .set('Accept', 'application/json')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["cloudlet"] !== undefined, 'Cloudlet should be returned with client details');
+               assert(body["api_key"] !== undefined, '"api_key" should be returned with client details');
+               assert(body["secret"] !== undefined, '"secret" should be returned with client details');
+               client_2 = body
+            });
+      });
+   });
+   describe('Retrieve auth token for user and client/app', function () {
+      it('should authorize client to access data on behalf of user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/authorizations')
+            .send({
+               username: user.username,
+               password: user.password,
+               api_key : client_2.api_key,
+               secret  : client_2.secret
+            })
+            .set('Accept', 'application/json')
+            //.expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["session"] !== undefined, 'Authorization session should be returned');
+               auth_token = body["session"];
+            });
+      })
+   })
+   describe('TRy to read object from other App', function(){
+
+      it('should not Read small_obj_1 Object', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/' + small_obj_1["@id"])
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body,         {error : 'Permission denied'}, 'Object id should be denied');
+            });
+      })
+
+      it('try to read list with new auth token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
+            });
+      })
+
+      it('try to read list with app dev session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         6, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with user session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         5, 'Should read 0');
+            });
+      })
+
+      it('try to read list with user session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', user_session_2)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
+
+
+      it('should create large_obj for first user and second client without authorisation', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/objects')
+            .send(large_obj)
+            .set('Accept', 'application/json')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body, { error: 'permission denied' }, "Should be returned permission denied");
+            })
+      })
+
+      it('should create permissions for client and user', function () {
+         this.timeout(10000);
+         return internal_request.post('/api/v1/permissions/' + client_2.api_key)
+            .send(permissions_manifest)
+            .set('Accept', 'application/json')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["status"] === 'update', 'Permission status should be updated')
+            })
+         //.expect(200)
+      });
+
+      it('should create large_obj for first user and second client', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/objects')
+            .send(large_obj)
+            .set('Accept', 'application/json')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["@id"] !== undefined, "Object ID Should be returned");
+            })
+      })
+
+      it('try to read list with user session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         6, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with app dev session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         7, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with new auth token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects/')
+            .set('Authorization', auth_token)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
+   })
+
+
+})
 

@@ -1,8 +1,9 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.openi-ict.eu');
-var assert = require('chai').assert;
+var supertest        = require('supertest-as-promised');
+var request          = supertest('https://dev.openi-ict.eu');
+var internal_request = supertest('https://dev.openi-ict.eu:8443');
+var assert           = require('chai').assert;
 
 var token;
 
@@ -228,7 +229,7 @@ describe('Permissions API', function () {
 
       it('should create GenericEntry permissions for client', function () {
          this.timeout(10000);
-         return request.post('/api/v1/permissions/' + client.api_key)
+         return internal_request.post('/api/v1/permissions/' + client.api_key)
             .send([
                {
                   "ref"         : testType["@id"],
@@ -420,7 +421,7 @@ var authenticate = function (username, password, userSession) {
 
 var setPermission = function (typeID, userToken) {
    var body;
-   return request.post('/api/v1/permissions/' + client.api_key)
+   return internal_request.post('/api/v1/permissions/' + client.api_key)
       .send([
          {
             "ref"         : typeID,

@@ -4,7 +4,7 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest = require('supertest-as-promised');
-var request = supertest('https://demo2.openi-ict.eu');
+var request = supertest('https://dev.openi-ict.eu');
 var assert = require('chai').assert;
 
 
@@ -108,6 +108,19 @@ describe('Service Enablers', function () {
          });
       });
    });
+   describe('Get Type', function () {
+      it('should retrieve single type', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/types/t_55498fbeed28c6a26946af8643e2743d-167')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["@reference"] === testType["@reference"], "Body should contain correct Type reference");
+               testType = body
+            })
+            .expect(200);
+      });
+   });
    describe('Create Service Enabler', function () {
       it('should create the user "SEDeveloper" on the platform', function () {
          this.timeout(10000);
@@ -208,18 +221,26 @@ describe('Service Enablers', function () {
 
       it('should create SE permissions for App', function () {
          this.timeout(10000);
-         return request.post('/api/v1/app_permissions')
-            .send(AppDeveloper.permissions)
+
+
+         return request.put('/api/v1/app_permissions')
+            .send({
+               "app_api_key"      : AppDeveloper.client.api_key,
+               "permissions"      : AppDeveloper.permissions,
+               "types"            : [testType],
+               "service_enablers" : [SEDeveloper.client]
+            })
             .set('Accept', 'application/json')
             .set('Authorization', AppDeveloper.session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       });
 
    });
+
 
    describe('Create Test Users', function () {
 
@@ -282,7 +303,20 @@ describe('Service Enablers', function () {
 
       var setPermission = function (userToken) {
          var body;
-         return request.post('/api/v1/permissions')
+         return request.post('/api/v1/permissions/' + AppDeveloper.client.api_key)
+            .send(AppDeveloper.permissions)
+            .set('Accept', 'application/json')
+            .set('Authorization', userToken)
+            //.expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               body = JSON.parse(response.text);
+               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+            })
+      };
+
+      var setPermissionSE = function (userToken) {
+         var body;
+         return request.post('/api/v1/permissions/' + SEDeveloper.client.api_key)
             .send(AppDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', userToken)
@@ -311,9 +345,13 @@ describe('Service Enablers', function () {
                this.timeout(10000);
                return authenticate(user, user, userSession)
             });
-            it('should set user permission for application', function () {
+            it('should set user permission for application developer', function () {
                this.timeout(10000);
                return setPermission(userToken)
+            });
+            it('should set user permission for SE developer', function () {
+               this.timeout(10000);
+               return setPermissionSE(userToken)
             });
          });
 

@@ -506,7 +506,7 @@ describe('Permissions API', function () {
    describe('Creating Permissions', function () {
       it('should create GenericEntry permissions for client', function () {
          this.timeout(10000);
-         return request.post('/api/v1/permissions')
+         return request.post('/api/v1/permissions/' + client.api_key)
             .send(permissions_manifest)
             .set('Accept', 'application/json')
             .set('Authorization', auth_token)

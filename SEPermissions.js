@@ -3,9 +3,10 @@
  */
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.peat-platform.org');
-var assert = require('chai').assert;
+var supertest        = require('supertest-as-promised');
+var request          = supertest('https://dev.peat-platform.org');
+var internal_request = supertest('https://dev.peat-platform.org:8443');
+var assert           = require('chai').assert;
 
 
 //describe('Service Enablers', function () {
@@ -36,6 +37,7 @@ var SEDeveloper = {
    client     : {
       name       : "Discovery Service",
       isSE       : true,
+      isTest     : true,
       description: "This service enables apps to add social networks features by allowing them search for other users of the app"
    }
 
@@ -50,6 +52,7 @@ var AppDeveloper = {
    },
    client     : {
       name       : "Find-a-Friend",
+      isTest     : true,
       description: "This application uses the Discovery SE to allow users to find their friends, somehow."
    },
    //Hardcoded... NOT GOOD
@@ -86,6 +89,40 @@ var AppDeveloper = {
 };
 
 describe('Service Enablers', function () {
+   describe('Setup', function () {
+      describe('Creating Types', function () {
+         it('should create GenericEntry Type for use by test', function () {
+            this.timeout(10000);
+            return request.post('/api/v1/types')
+               .send(testType)
+               .set('Accept', 'application/json')
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  console.log(body)
+                  if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
+                     assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
+                  }
+                  else {
+                     assert(body["@id"] !== undefined, 'Type ID should be returned');
+                  }
+               });
+         });
+      });
+   });
+   describe('Get Type', function () {
+      it('should retrieve single type', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["@reference"] === testType["@reference"], "Body should contain correct Type reference");
+               testType = body
+            })
+            .expect(200);
+      });
+   });
    describe('Create Service Enabler', function () {
       it('should create the user "SEDeveloper" on the platform', function () {
          this.timeout(10000);
@@ -129,6 +166,7 @@ describe('Service Enablers', function () {
                assert(body["cloudlet"] !== undefined, 'Cloudlet should be returned with client details');
                assert(body["api_key"] !== undefined, '"api_key" should be returned with client details');
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
+               assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
                SEDeveloper.client = body
             });
       });
@@ -182,38 +220,29 @@ describe('Service Enablers', function () {
             });
       });
 
-      it('should create GenericEntry Type for use by Application', function () {
-         this.timeout(10000);
-         return request.post('/api/v1/types')
-            .send(testType)
-            .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
-            .expect(function (response) {
-               var body = JSON.parse(response.text);
-               if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
-                  assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
-               }
-               else {
-                  assert(body["@id"] !== undefined, 'Type ID should be returned');
-               }
-            });
-      });
 
       it('should create SE permissions for App', function () {
          this.timeout(10000);
-         return request.post('/api/v1/app_permissions')
-            .send(AppDeveloper.permissions)
+
+
+         return internal_request.put('/api/v1/app_permissions')
+            .send({
+               "app_api_key"      : AppDeveloper.client.api_key,
+               "permissions"      : AppDeveloper.permissions,
+               "types"            : [testType],
+               "service_enablers" : [SEDeveloper.client]
+            })
             .set('Accept', 'application/json')
             .set('Authorization', AppDeveloper.session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
-            .expect(200)
       });
 
    });
+
 
    describe('Create Test Users', function () {
 
@@ -276,7 +305,7 @@ describe('Service Enablers', function () {
 
       var setPermission = function (userToken) {
          var body;
-         return request.post('/api/v1/permissions')
+         return internal_request.post('/api/v1/permissions/' + AppDeveloper.client.api_key)
             .send(AppDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', userToken)
@@ -285,7 +314,19 @@ describe('Service Enablers', function () {
                body = JSON.parse(response.text);
                assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
-            .expect(200)
+      };
+
+      var setPermissionSE = function (userToken) {
+         var body;
+         return internal_request.post('/api/v1/permissions/' + SEDeveloper.client.api_key)
+            .send(AppDeveloper.permissions)
+            .set('Accept', 'application/json')
+            .set('Authorization', userToken)
+            //.expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               body = JSON.parse(response.text);
+               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+            })
       };
 
       var i;
@@ -306,9 +347,13 @@ describe('Service Enablers', function () {
                this.timeout(10000);
                return authenticate(user, user, userSession)
             });
-            it('should set user permission for application', function () {
+            it('should set user permission for application developer', function () {
                this.timeout(10000);
                return setPermission(userToken)
+            });
+            it('should set user permission for SE developer', function () {
+               this.timeout(10000);
+               return setPermissionSE(userToken)
             });
          });
 
@@ -331,7 +376,7 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     assert(body["@id"] !== undefined, "Object ID Should be returned");
+                     assert(body["@id"] !== undefined, "Object ID Should be returned. Received \n\t"+JSON.stringify(body));
                   })
             });
          });
@@ -349,9 +394,11 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
-                     assert(parseInt(body["meta"]["total_count"]) > 0);
-                     AppView = body;
+                     assert(body["meta"] !== undefined, "Responce should contain 'meta' key");
+                     assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Application Viewpoint should not be 0");
+                     if(parseInt(body["meta"]["total_count"]) > 0) {
+                        AppView = body;
+                     }
                   });
             });
 
@@ -364,8 +411,10 @@ describe('Service Enablers', function () {
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
                      //console.log(JSON.stringify(body));
-                     assert(parseInt(body["meta"]["total_count"]) > 0);
-                     SEView = body;
+                     assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
+                     if(parseInt(body["meta"]["total_count"]) > 0) {
+                        SEView = body;
+                     }
                   });
             });
 

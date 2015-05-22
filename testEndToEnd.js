@@ -61,7 +61,7 @@ describe('Types API', function () {
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
-         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
+         return request.get('/api/v1/types/t_e18dd069371d528764d51c54d5bf9611-167')
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);

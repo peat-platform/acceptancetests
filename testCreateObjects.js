@@ -16,21 +16,21 @@ var sub_type_type = {
          "@data_type": "string",
          "@multiple": false,
          "@required": true,
-         "@context": "Forename Name"
+         "@description": "Forename Name"
       },
       {
          "@property_name": "age",
          "@data_type": "int",
          "@multiple": false,
          "@required": false,
-         "@context": "Age"
+         "@description": "Age"
       },
       {
          "@property_name": "fav_nums",
          "@data_type": "int",
          "@multiple": true,
          "@required": false,
-         "@context": "Favourite Numbers"
+         "@description": "Favourite Numbers"
       }
    ]
 }
@@ -43,14 +43,14 @@ var small_obj_type = {
          "@data_type": "string",
          "@multiple": false,
          "@required": true,
-         "@context": "Name of Car"
+         "@description": "Name of Car"
       },
       {
          "@property_name": "sub_obj",
-         "@data_type": "t_a12e3be1c6722a702e70335448fa21f5-383",
+         "@data_type": "t_ac526b83922cbf138a313269f9c204f2-395",
          "@multiple": false,
          "@required": true,
-         "@context": "Sub Object"
+         "@description": "Sub Object"
       }
    ]
 }
@@ -63,80 +63,80 @@ var  large_obj_type = {
          "@data_type": "boolean",
          "@multiple": false,
          "@required": true,
-         "@context": "boolean"
+         "@description": "boolean"
       },
       {
          "@property_name": "int",
          "@data_type": "int",
          "@multiple": false,
          "@required": true,
-         "@context": "int"
+         "@description": "int"
       },
       {
          "@property_name": "string",
          "@data_type": "string",
          "@multiple": false,
          "@required": true,
-         "@context": "string"
+         "@description": "string"
       },
       {
          "@property_name": "float",
          "@data_type": "float",
          "@multiple": false,
          "@required": true,
-         "@context": "float"
+         "@description": "float"
       },
       {
          "@property_name": "url",
          "@data_type": "url",
          "@multiple": false,
          "@required": true,
-         "@context": "url"
+         "@description": "url"
       },
       {
          "@property_name": "date",
          "@data_type": "date",
          "@multiple": false,
          "@required": true,
-         "@context": "date"
+         "@description": "date"
       },
       {
          "@property_name": "timestamp",
          "@data_type": "timestamp",
          "@multiple": false,
          "@required": true,
-         "@context": "timestamp"
+         "@description": "timestamp"
       },
       {
          "@property_name": "gps",
          "@data_type": "gps",
          "@multiple": false,
          "@required": true,
-         "@context": "gps"
+         "@description": "gps"
       },
       {
          "@property_name": "hex",
          "@data_type": "hexadecimal",
          "@multiple": false,
          "@required": true,
-         "@context": "hex"
+         "@description": "hex"
       },
       {
          "@property_name": "base64",
          "@data_type": "base64",
          "@multiple": false,
          "@required": true,
-         "@context": "base64"
+         "@description": "base64"
       }
    ]
 }
 
-var sub_type_type_id  = "t_a12e3be1c6722a702e70335448fa21f5-383"
-var small_obj_type_id = "t_eb49252a5923c87bbc312d12d7596f6c-306"
-var large_obj_type_id = "t_2538a47cd151c7c64d5acac02ca0f75b-1081"
+var sub_type_type_id  = "t_ac526b83922cbf138a313269f9c204f2-395"
+var small_obj_type_id = "t_92c13a270beec881c0f4b67c89d1b431-314"
+var large_obj_type_id = "t_4335ad54f41f12fe4fffda653eefe2ce-1121"
 
 var sub_obj_1 = {
-   "@type": "t_a12e3be1c6722a702e70335448fa21f5-383",
+   "@type": "t_ac526b83922cbf138a313269f9c204f2-395",
    "@data": {
       "name"     : "sub_obj_1",
       "age"      : 300,
@@ -146,7 +146,7 @@ var sub_obj_1 = {
 
 
 var sub_obj_2 = {
-   "@type": "t_a12e3be1c6722a702e70335448fa21f5-383",
+   "@type": "t_ac526b83922cbf138a313269f9c204f2-395",
    "@data": {
       "name"     : "sub_obj_2",
       "fav_nums" : [103, 4, 23]
@@ -155,7 +155,7 @@ var sub_obj_2 = {
 
 
 var small_obj_1 = {
-   "@type": "t_eb49252a5923c87bbc312d12d7596f6c-306",
+   "@type": "t_92c13a270beec881c0f4b67c89d1b431-314",
    "@data": {
       "name"     : "small obj 1",
       "sub_obj"  : "replace with real object Id before creating object"
@@ -163,7 +163,7 @@ var small_obj_1 = {
 }
 
 var small_obj_2 = {
-   "@type": "t_eb49252a5923c87bbc312d12d7596f6c-306",
+   "@type": "t_92c13a270beec881c0f4b67c89d1b431-314",
    "@data": {
       "name"     : "small obj 1",
       "sub_obj"  : {
@@ -173,7 +173,7 @@ var small_obj_2 = {
 }
 
 var large_obj = {
-   "@type": "t_2538a47cd151c7c64d5acac02ca0f75b-1081",
+   "@type": "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
    "@data": {
       "boolean"   : true,
       "int"       : 1,
@@ -191,73 +191,73 @@ var large_obj = {
 
 var permissions_manifest = [
    {
-      "ref"         : "t_a12e3be1c6722a702e70335448fa21f5-383",
+      "ref"         : "t_ac526b83922cbf138a313269f9c204f2-395",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "CREATE"
    },
    {
-      "ref"         : "t_a12e3be1c6722a702e70335448fa21f5-383",
+      "ref"         : "t_ac526b83922cbf138a313269f9c204f2-395",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "READ"
    },
    {
-      "ref"         : "t_a12e3be1c6722a702e70335448fa21f5-383",
+      "ref"         : "t_ac526b83922cbf138a313269f9c204f2-395",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "UPDATE"
    },
    {
-      "ref"         : "t_a12e3be1c6722a702e70335448fa21f5-383",
+      "ref"         : "t_ac526b83922cbf138a313269f9c204f2-395",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "DELETE"
    },
    {
-      "ref"         : "t_eb49252a5923c87bbc312d12d7596f6c-306",
+      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "CREATE"
    },
    {
-      "ref"         : "t_eb49252a5923c87bbc312d12d7596f6c-306",
+      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "READ"
    },
    {
-      "ref"         : "t_eb49252a5923c87bbc312d12d7596f6c-306",
+      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "UPDATE"
    },
    {
-      "ref"         : "t_eb49252a5923c87bbc312d12d7596f6c-306",
+      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "DELETE"
    },
    {
-      "ref"         : "t_2538a47cd151c7c64d5acac02ca0f75b-1081",
+      "ref"         : "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "CREATE"
    },
    {
-      "ref"         : "t_2538a47cd151c7c64d5acac02ca0f75b-1081",
+      "ref"         : "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "READ"
    },
    {
-      "ref"         : "t_2538a47cd151c7c64d5acac02ca0f75b-1081",
+      "ref"         : "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "UPDATE"
    },
    {
-      "ref"         : "t_2538a47cd151c7c64d5acac02ca0f75b-1081",
+      "ref"         : "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "DELETE"

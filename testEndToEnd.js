@@ -17,7 +17,7 @@ var testType = {
          "@data_type"    : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@context"      : "Array of Strings"
+         "@description"  : "Array of Strings"
       }
    ]
 };

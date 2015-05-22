@@ -132,7 +132,7 @@ var  large_obj_type = {
 }
 
 var sub_type_type_id  = "t_ac526b83922cbf138a313269f9c204f2-395"
-var small_obj_type_id = "t_92c13a270beec881c0f4b67c89d1b431-314"
+var small_obj_type_id = "t_b57b89fd65c32de4960f37f6c406c13e-314"
 var large_obj_type_id = "t_4335ad54f41f12fe4fffda653eefe2ce-1121"
 
 var sub_obj_1 = {
@@ -155,7 +155,7 @@ var sub_obj_2 = {
 
 
 var small_obj_1 = {
-   "@type": "t_92c13a270beec881c0f4b67c89d1b431-314",
+   "@type": "t_b57b89fd65c32de4960f37f6c406c13e-314",
    "@data": {
       "name"     : "small obj 1",
       "sub_obj"  : "replace with real object Id before creating object"
@@ -163,7 +163,7 @@ var small_obj_1 = {
 }
 
 var small_obj_2 = {
-   "@type": "t_92c13a270beec881c0f4b67c89d1b431-314",
+   "@type": "t_b57b89fd65c32de4960f37f6c406c13e-314",
    "@data": {
       "name"     : "small obj 1",
       "sub_obj"  : {
@@ -215,25 +215,25 @@ var permissions_manifest = [
       "access_type" : "DELETE"
    },
    {
-      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
+      "ref"         : "t_b57b89fd65c32de4960f37f6c406c13e-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "CREATE"
    },
    {
-      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
+      "ref"         : "t_b57b89fd65c32de4960f37f6c406c13e-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "READ"
    },
    {
-      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
+      "ref"         : "t_b57b89fd65c32de4960f37f6c406c13e-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "UPDATE"
    },
    {
-      "ref"         : "t_92c13a270beec881c0f4b67c89d1b431-314",
+      "ref"         : "t_b57b89fd65c32de4960f37f6c406c13e-314",
       "type"        : "type",
       "access_level": "APP",
       "access_type" : "DELETE"

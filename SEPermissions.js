@@ -32,7 +32,8 @@ var SEDeveloper = {
    session    : "",
    userDetails: {
       username: "SEDeveloper",
-      password: "SEDeveloper"
+      password: "SEDeveloper",
+      scope   : "developer"
    },
    client     : {
       name       : "Discovery Service",
@@ -48,7 +49,8 @@ var AppDeveloper = {
    session    : "",
    userDetails: {
       "username": "AppDeveloper",
-      "password": "AppDeveloper"
+      "password": "AppDeveloper",
+      "scope"   : "developer"
    },
    client     : {
       name       : "Find-a-Friend",
@@ -272,7 +274,8 @@ describe('Service Enablers', function () {
          return request.post('/api/v1/auth/sessions')
             .send({
                "username": username,
-               "password": password
+               "password": password,
+               "scope"   : "user"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')

@@ -169,6 +169,13 @@ describe('Service Enablers', function () {
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
                SEDeveloper.client = body
+
+               for ( var i =0; i < AppDeveloper.permissions.length; i++){
+                  if (AppDeveloper.permissions[i].ref === SEDeveloper.client.name){
+                     AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key
+                     AppDeveloper.permissions[i].cloudlet = SEDeveloper.client.cloudlet
+                  }
+               }
             });
       });
 
@@ -224,7 +231,6 @@ describe('Service Enablers', function () {
 
       it('should create SE permissions for App', function () {
          this.timeout(10000);
-
 
          return internal_request.put('/api/v1/app_permissions')
             .send({
@@ -314,7 +320,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -327,7 +333,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -412,7 +418,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
                      assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
                      if(parseInt(body["meta"]["total_count"]) > 0) {
                         SEView = body;

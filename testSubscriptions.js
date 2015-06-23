@@ -190,7 +190,21 @@ describe('Test Setup', function () {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
             })
-         //.expect(200)
+            .expect(200);
+      });
+   });
+   describe('Get Cloudlet', function () {
+      it('should return users cloudlet', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/cloudlets')
+            .set('Accept', 'application/json')
+            .set('Authorization', user.authToken)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(body["@id"] !== undefined, "Object ID Should be returned");
+               user.cloudlet = body["@id"];
+            })
       });
    });
    describe('Creating Object', function () {
@@ -212,22 +226,8 @@ describe('Test Setup', function () {
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["@id"] !== undefined, "Object ID Should be returned");
+               assert(body["@id"] !== undefined, "Object ID Should be returned not " + JSON.stringify(body));
                //objectid = body["@id"]
-            })
-      });
-   });
-   describe('Get Cloudlet', function () {
-      it('should return users cloudlet', function () {
-         this.timeout(10000);
-         return request.get('/api/v1/cloudlets')
-            .set('Accept', 'application/json')
-            .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
-            .expect(function (response) {
-               var body = JSON.parse(response.text);
-               assert(body["@id"] !== undefined, "Object ID Should be returned");
-               user.cloudlet = body["@id"];
             })
       });
    });
@@ -257,7 +257,9 @@ describe('Subscription Tests', function () {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
-               user.subs.push(body["id"])
+               if (body["id"] !== undefined) {
+                  user.subs.push(body["id"])
+               }
             });
       });
       it('should create Notification Subscription', function () {
@@ -276,7 +278,9 @@ describe('Subscription Tests', function () {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
-               user.subs.push(body["id"])
+               if (body["id"] !== undefined) {
+                  user.subs.push(body["id"])
+               }
             });
       });
       it('should create Email Subscription', function () {
@@ -295,7 +299,9 @@ describe('Subscription Tests', function () {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
-               user.subs.push(body["id"])
+               if (body["id"] !== undefined) {
+                  user.subs.push(body["id"])
+               }
             });
       });
       it('should create SMS Subscription', function () {
@@ -314,7 +320,9 @@ describe('Subscription Tests', function () {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
-               user.subs.push(body["id"])
+               if (body["id"] !== undefined) {
+                  user.subs.push(body["id"])
+               }
             });
       });
       it('should create GCM Subscription', function () {
@@ -333,31 +341,29 @@ describe('Subscription Tests', function () {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
-               user.subs.push(body["id"])
+               if (body["id"] !== undefined) {
+                  user.subs.push(body["id"])
+               }
             });
       });
-      describe('Cleanup Subscriptions',function(){
-         var i;
-         var limit;
+      var i;
+      var limit;
 
-         var deleteSubscription = function (sub) {
-            //var sub = user.subs.pop()
-            return request.delete('/api/v1/subscription/'+ sub)
-               .set('Accept', 'application/json')
-               .set('Authorization', user.authToken)
-               .expect(function (response) {
-                  console.log(response.request);
-                  //assert(response.status == 200, 'Status should be "200".');
-               });
-         };
-
-         for ( i = 0; i < 5; i++ ) {
-            it('should delete subscription ' + i+1, function () {
-               this.timeout(10000);
-               return deleteSubscription(user.subs.pop())
+      var deleteSubscription = function (sub) {
+         return request.del('/api/v1/subscription/'+ sub)
+            .set('Accept', 'application/json')
+            .set('Authorization', user.authToken)
+            .expect(function (response) {
+               assert(response.req.path.indexOf("undefined") == -1, 'Path should not contain "undefined" ' + response.status);
             });
-         }
-      });
+      };
+
+      for ( i = 0; i < 5; i++ ) {
+         it('should delete subscription ' + i, function () {
+            this.timeout(10000);
+            return deleteSubscription(user.subs.pop())
+         });
+      }
    });
 });
 

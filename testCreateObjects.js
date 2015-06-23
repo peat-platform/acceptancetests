@@ -985,8 +985,6 @@ describe("Testing App token Isolation", function(){
                .expect('content-type', 'application/json; charset=utf-8')
                .expect(function (response) {
                   var body = JSON.parse(response.text);
-                  //console.log(app_developer_session)
-                  //console.log(body)
                   assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
                });
       })
@@ -1073,8 +1071,6 @@ describe("Testing App token Isolation", function(){
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               //console.log(auth_token)
-               //console.log(body)
                assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
       })

@@ -264,7 +264,7 @@ describe('Permissions API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
-            })
+            });
             //.expect(200)
       });
    });

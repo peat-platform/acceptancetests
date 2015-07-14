@@ -168,11 +168,11 @@ describe('Service Enablers', function () {
                assert(body["api_key"] !== undefined, '"api_key" should be returned with client details');
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
-               SEDeveloper.client = body
+               SEDeveloper.client = body;
 
                for ( var i =0; i < AppDeveloper.permissions.length; i++){
                   if (AppDeveloper.permissions[i].ref === SEDeveloper.client.name){
-                     AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key
+                     AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key;
                      AppDeveloper.permissions[i].cloudlet = SEDeveloper.client.cloudlet
                   }
                }

@@ -33,7 +33,7 @@ var sub_type_type = {
          "@description": "Favourite Numbers"
       }
    ]
-}
+};
 
 var small_obj_type = {
    "@reference": "Test Type Variations Small",
@@ -53,7 +53,7 @@ var small_obj_type = {
          "@description": "Sub Object"
       }
    ]
-}
+};
 
 var  large_obj_type = {
    "@reference": "Test Type Variations Large",
@@ -129,11 +129,11 @@ var  large_obj_type = {
          "@description": "base64"
       }
    ]
-}
+};
 
-var sub_type_type_id  = "t_ac526b83922cbf138a313269f9c204f2-395"
-var small_obj_type_id = "t_b57b89fd65c32de4960f37f6c406c13e-314"
-var large_obj_type_id = "t_4335ad54f41f12fe4fffda653eefe2ce-1121"
+var sub_type_type_id  = "t_ac526b83922cbf138a313269f9c204f2-395";
+var small_obj_type_id = "t_b57b89fd65c32de4960f37f6c406c13e-314";
+var large_obj_type_id = "t_4335ad54f41f12fe4fffda653eefe2ce-1121";
 
 var sub_obj_1 = {
    "@type": "t_ac526b83922cbf138a313269f9c204f2-395",
@@ -142,7 +142,7 @@ var sub_obj_1 = {
       "age"      : 300,
       "fav_nums" : [10, 44, 342]
    }
-}
+};
 
 
 var sub_obj_2 = {
@@ -151,7 +151,7 @@ var sub_obj_2 = {
       "name"     : "sub_obj_2",
       "fav_nums" : [103, 4, 23]
    }
-}
+};
 
 
 var small_obj_1 = {
@@ -160,7 +160,7 @@ var small_obj_1 = {
       "name"     : "small obj 1",
       "sub_obj"  : "replace with real object Id before creating object"
    }
-}
+};
 
 var small_obj_2 = {
    "@type": "t_b57b89fd65c32de4960f37f6c406c13e-314",
@@ -170,7 +170,7 @@ var small_obj_2 = {
          "name"     : "sub_obj_literal"
       }
    }
-}
+};
 
 var large_obj = {
    "@type": "t_4335ad54f41f12fe4fffda653eefe2ce-1121",
@@ -186,7 +186,7 @@ var large_obj = {
       "hex"       : "345AF345",
       "base64"    : "dGVzdCB0ZXN0IHRlc3Q="
    }
-}
+};
 
 
 var permissions_manifest = [
@@ -262,7 +262,7 @@ var permissions_manifest = [
       "access_level": "APP",
       "access_type" : "DELETE"
    }
-]
+];
 
 
 //create types
@@ -323,20 +323,20 @@ describe('Teardown', function () {
          .set('Accept', 'application/json')
          .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
 
-   })
+   });
    it('should delete', function () {
       this.timeout(10000);
       return internal_request.delete('/api/v1/crud/users/users_' + user.username)
          .set('Accept', 'application/json')
          .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
-   })
+   });
    it('should delete', function () {
       this.timeout(10000);
       return internal_request.delete('/api/v1/crud/users/users_' + user_2.username)
          .set('Accept', 'application/json')
          .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
    })
-})
+});
 
 
 describe('Types API', function () {
@@ -476,7 +476,7 @@ describe('Setup App developer and user', function () {
                assert(body["session"] !== undefined, 'User session should be returned');
                app_developer_session = body["session"];
             });
-      })
+      });
 
       it('should create user session', function () {
          this.timeout(10000);
@@ -594,7 +594,7 @@ describe('Permissions API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
-            })
+            });
          //.expect(200)
       });
       it('should create GenericEntry permissions for client and second user', function () {
@@ -607,7 +607,7 @@ describe('Permissions API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
-            })
+            });
          //.expect(200)
       });
    });
@@ -645,7 +645,7 @@ describe('Objects API', function () {
             })
       }),
          it('should create small_obj_1', function () {
-            small_obj_1["@data"].sub_obj = sub_obj_2["@id"]
+            small_obj_1["@data"].sub_obj = sub_obj_2["@id"];
             this.timeout(10000);
             return request.post('/api/v1/objects')
                .send(small_obj_1)
@@ -765,7 +765,7 @@ describe('Objects API', function () {
                   var body = JSON.parse(response.text);
                   assert.deepEqual(body.meta.total_count,         5, 'Should read 0');
                });
-         })
+         });
       it('Read all objects for second user', function () {
          this.timeout(10000);
          return request.get('/api/v1/objects/')
@@ -817,7 +817,7 @@ describe("Testing App token Isolation", function(){
                auth_token_new = body["session"];
             });
       })
-   })
+   });
    describe('TRy to read object from other App', function() {
 
       it('should not Read small_obj_1 Object', function () {
@@ -829,7 +829,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body, {error: 'Permission denied'}, 'Object id should be denied');
             });
-      })
+      });
 
       it('try to read list with new auth token', function () {
          this.timeout(10000);
@@ -840,7 +840,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count, 0, 'Should read 0');
             });
-      })
+      });
 
       it('try to read list with app dev session token', function () {
          this.timeout(10000);
@@ -851,7 +851,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count, 6, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with user session token', function () {
@@ -863,7 +863,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         5, 'Should read 0');
             });
-      })
+      });
 
       it('try to read list with user session token', function () {
          this.timeout(10000);
@@ -874,7 +874,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
-      })
+      });
 
 
       it('should create large_obj for first user and second client without authorisation', function () {
@@ -888,7 +888,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body, { error: 'permission denied' }, "Should be returned permission denied");
             })
-      })
+      });
 
       it('should create permissions for client and user', function () {
          this.timeout(10000);
@@ -900,7 +900,7 @@ describe("Testing App token Isolation", function(){
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
-            })
+            });
          //.expect(200)
       });
 
@@ -915,7 +915,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, "Object ID Should be returned");
             })
-      })
+      });
 
       it('try to read list with user session token', function () {
          this.timeout(10000);
@@ -926,7 +926,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         6, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with app dev session token', function () {
@@ -938,7 +938,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         7, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with new auth token', function () {
@@ -952,7 +952,7 @@ describe("Testing App token Isolation", function(){
             });
       })
 
-   })
+   });
 
 
    describe('Read object with filters', function(){
@@ -975,7 +975,7 @@ describe("Testing App token Isolation", function(){
             }
          }
 
-      })
+      });
 
 
       it('try to read list with app dev session token (with filter and dev session)', function () {
@@ -987,7 +987,7 @@ describe("Testing App token Isolation", function(){
                   var body = JSON.parse(response.text);
                   assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
                });
-      })
+      });
 
 
 
@@ -1000,7 +1000,7 @@ describe("Testing App token Isolation", function(){
                   var body = JSON.parse(response.text);
                   assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
                });
-      })
+      });
 
 
       it('try to read list with app dev session token (with property_filter and dev session : boolean true)', function () {
@@ -1012,7 +1012,7 @@ describe("Testing App token Isolation", function(){
                   var body = JSON.parse(response.text);
                   assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
                });
-      })
+      });
 
 
 
@@ -1025,7 +1025,7 @@ describe("Testing App token Isolation", function(){
                   var body = JSON.parse(response.text);
                   assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
                });
-      })
+      });
 
 
       it('try to read list with app dev session token (with filter and user session)', function () {
@@ -1037,7 +1037,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with app dev session token (with property_filter and user session)', function () {
@@ -1049,7 +1049,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with app dev session token (with filter and auth session)', function () {
@@ -1061,7 +1061,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to read list with app dev session token (with property_filter and auth session)', function () {
@@ -1074,7 +1074,7 @@ describe("Testing App token Isolation", function(){
                assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
       })
-   })
+   });
 
 
    describe('Search without Filters', function(){
@@ -1088,7 +1088,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         6, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with app dev session token', function () {
@@ -1100,7 +1100,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         7, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with new auth token', function () {
@@ -1114,7 +1114,7 @@ describe("Testing App token Isolation", function(){
             });
       })
 
-   })
+   });
 
 
    describe('Search with filters', function(){
@@ -1129,7 +1129,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with property_filter and dev session)', function () {
@@ -1141,7 +1141,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with property_filter and dev session : boolean true)', function () {
@@ -1153,7 +1153,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
             });
-      })
+      });
 
 
 
@@ -1166,7 +1166,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with filter and user session)', function () {
@@ -1178,7 +1178,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with property_filter and user session)', function () {
@@ -1190,7 +1190,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with filter and auth session)', function () {
@@ -1202,7 +1202,7 @@ describe("Testing App token Isolation", function(){
                var body = JSON.parse(response.text);
                assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
             });
-      })
+      });
 
 
       it('try to search with app dev session token (with property_filter and auth session)', function () {
@@ -1216,5 +1216,5 @@ describe("Testing App token Isolation", function(){
             });
       })
    })
-})
+});
 

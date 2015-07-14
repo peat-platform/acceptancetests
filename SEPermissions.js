@@ -32,7 +32,8 @@ var SEDeveloper = {
    session    : "",
    userDetails: {
       username: "SEDeveloper",
-      password: "SEDeveloper"
+      password: "SEDeveloper",
+      scope   : "developer"
    },
    client     : {
       name       : "Discovery Service",
@@ -48,7 +49,8 @@ var AppDeveloper = {
    session    : "",
    userDetails: {
       "username": "AppDeveloper",
-      "password": "AppDeveloper"
+      "password": "AppDeveloper",
+      "scope"   : "developer"
    },
    client     : {
       name       : "Find-a-Friend",
@@ -99,7 +101,6 @@ describe('Service Enablers', function () {
                .expect('content-type', 'application/json; charset=utf-8')
                .expect(function (response) {
                   var body = JSON.parse(response.text);
-                  console.log(body)
                   if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
                      assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
                   }
@@ -168,6 +169,13 @@ describe('Service Enablers', function () {
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
                SEDeveloper.client = body
+
+               for ( var i =0; i < AppDeveloper.permissions.length; i++){
+                  if (AppDeveloper.permissions[i].ref === SEDeveloper.client.name){
+                     AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key
+                     AppDeveloper.permissions[i].cloudlet = SEDeveloper.client.cloudlet
+                  }
+               }
             });
       });
 
@@ -273,7 +281,8 @@ describe('Service Enablers', function () {
          return request.post('/api/v1/auth/sessions')
             .send({
                "username": username,
-               "password": password
+               "password": password,
+               "scope"   : "user"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -312,7 +321,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -325,7 +334,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -410,7 +419,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
                      assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
                      if(parseInt(body["meta"]["total_count"]) > 0) {
                         SEView = body;

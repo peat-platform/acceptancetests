@@ -279,17 +279,20 @@ var permissions_manifest = [
 
 var dev_user = {
    "username": "acceptance_test_platformTestDev",
-   "password": "acceptance_test_platformTestDev"
+   "password": "acceptance_test_platformTestDev",
+   "scope"   : "developer"
 };
 
 var user = {
    "username": "acceptance_test_platformTest",
-   "password": "acceptance_test_platformTest"
+   "password": "acceptance_test_platformTest",
+   "scope"   : "user"
 };
 
 var user_2 = {
    "username": "acceptance_test_platformTest_2",
-   "password": "acceptance_test_platformTest_2"
+   "password": "acceptance_test_platformTest_2",
+   "scope"   : "user"
 };
 
 var client = {
@@ -307,9 +310,10 @@ var client_2 = {
 
 var app_developer_session = "";
 var user_session          = "";
-var user_session_2          = "";
+var user_session_2        = "";
 var auth_token            = "";
 var auth_token_2          = "";
+var auth_token_new        = "";
 
 
 describe('Teardown', function () {
@@ -342,6 +346,7 @@ describe('Types API', function () {
          return request.post('/api/v1/types')
             .send(sub_type_type)
             .set('Accept', 'application/json')
+            .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -809,31 +814,31 @@ describe("Testing App token Isolation", function(){
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["session"] !== undefined, 'Authorization session should be returned');
-               auth_token = body["session"];
+               auth_token_new = body["session"];
             });
       })
    })
-   describe('TRy to read object from other App', function(){
+   describe('TRy to read object from other App', function() {
 
       it('should not Read small_obj_1 Object', function () {
          this.timeout(10000);
          return request.get('/api/v1/objects/' + small_obj_1["@id"])
-            .set('Authorization', auth_token)
+            .set('Authorization', auth_token_new)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert.deepEqual(body,         {error : 'Permission denied'}, 'Object id should be denied');
+               assert.deepEqual(body, {error: 'Permission denied'}, 'Object id should be denied');
             });
       })
 
       it('try to read list with new auth token', function () {
          this.timeout(10000);
          return request.get('/api/v1/objects/')
-            .set('Authorization', auth_token)
+            .set('Authorization', auth_token_new)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
+               assert.deepEqual(body.meta.total_count, 0, 'Should read 0');
             });
       })
 
@@ -844,19 +849,19 @@ describe("Testing App token Isolation", function(){
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert.deepEqual(body.meta.total_count,         6, 'Should read 6');
+               assert.deepEqual(body.meta.total_count, 6, 'Should read 0');
             });
       })
 
 
       it('try to read list with user session token', function () {
          this.timeout(10000);
-         return request.get('/api/v1/objects/')
+         return request.get('/api/v1/objects')
             .set('Authorization', user_session)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert.deepEqual(body.meta.total_count,         5, 'Should read 5');
+               assert.deepEqual(body.meta.total_count,         5, 'Should read 0');
             });
       })
 
@@ -867,7 +872,7 @@ describe("Testing App token Isolation", function(){
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert.deepEqual(body.meta.total_count,         1, 'Should read 1');
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
             });
       })
 
@@ -877,7 +882,7 @@ describe("Testing App token Isolation", function(){
          return request.post('/api/v1/objects')
             .send(large_obj)
             .set('Accept', 'application/json')
-            .set('Authorization', auth_token)
+            .set('Authorization', auth_token_new)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -890,7 +895,7 @@ describe("Testing App token Isolation", function(){
          return internal_request.post('/api/v1/permissions/' + client_2.api_key)
             .send(permissions_manifest)
             .set('Accept', 'application/json')
-            .set('Authorization', auth_token)
+            .set('Authorization', auth_token_new)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -904,7 +909,7 @@ describe("Testing App token Isolation", function(){
          return request.post('/api/v1/objects')
             .send(large_obj)
             .set('Accept', 'application/json')
-            .set('Authorization', auth_token)
+            .set('Authorization', auth_token_new)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -939,6 +944,129 @@ describe("Testing App token Isolation", function(){
       it('try to read list with new auth token', function () {
          this.timeout(10000);
          return request.get('/api/v1/objects/')
+            .set('Authorization', auth_token_new)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
+
+   })
+
+
+   describe('Read object with filters', function(){
+
+      it('Add sleep and force start n1ql', function () {
+         this.timeout(10000);
+
+            request.get('/api/v1/objects?with_property=boolean&order=descending')
+               .set('Authorization', app_developer_session)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         3, 'Should read 0');
+               });
+
+         var start = new Date().getTime();
+         for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > 5000){
+               break;
+            }
+         }
+
+      })
+
+
+      it('try to read list with app dev session token (with filter and dev session)', function () {
+         this.timeout(10000);
+            return request.get('/api/v1/objects?with_property=boolean&order=descending')
+               .set('Authorization', app_developer_session)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+               });
+      })
+
+
+
+      it('try to read list with app dev session token (with property_filter and dev session)', function () {
+         this.timeout(10000);
+            return request.get('/api/v1/objects?with_property=hex&property_filter=hex%3D345AF345')
+               .set('Authorization', app_developer_session)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+               });
+      })
+
+
+      it('try to read list with app dev session token (with property_filter and dev session : boolean true)', function () {
+         this.timeout(10000);
+            return request.get('/api/v1/objects?property_filter=boolean%3Dtrue')
+               .set('Authorization', app_developer_session)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+               });
+      })
+
+
+
+      it('try to read list with app dev session token (with property_filter and dev session : boolean false)', function () {
+         this.timeout(10000);
+            return request.get('/api/v1/objects?with_property=hex&property_filter=boolean%3Dfalse')
+               .set('Authorization', app_developer_session)
+               .expect('content-type', 'application/json; charset=utf-8')
+               .expect(function (response) {
+                  var body = JSON.parse(response.text);
+                  assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
+               });
+      })
+
+
+      it('try to read list with app dev session token (with filter and user session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects?with_property=name')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with app dev session token (with property_filter and user session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects?property_filter=name%3Dsub_obj_1')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with app dev session token (with filter and auth session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects?with_property=name')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
+            });
+      })
+
+
+      it('try to read list with app dev session token (with property_filter and auth session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/objects?property_filter=name%3Dsub_obj_1')
             .set('Authorization', auth_token)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
@@ -949,5 +1077,144 @@ describe("Testing App token Isolation", function(){
    })
 
 
+   describe('Search without Filters', function(){
+
+      it('try to search with user session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search/')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         6, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with app dev session token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search/')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         7, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with new auth token', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search/')
+            .set('Authorization', auth_token_new)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         7, 'Should read 0');
+            });
+      })
+
+   })
+
+
+   describe('Search with filters', function(){
+
+
+      it('try to search with app dev session token (with filter and dev session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?with_property=boolean&order=descending')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+            });
+      })
+
+
+      it('try to search with app dev session token (with property_filter and dev session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?with_property=hex&property_filter=hex%3D345AF345')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+            });
+      })
+
+
+      it('try to search with app dev session token (with property_filter and dev session : boolean true)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?property_filter=boolean%3Dtrue')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         3, 'Should read 3');
+            });
+      })
+
+
+
+      it('try to search with app dev session token (with property_filter and dev session : boolean false)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?with_property=hex&property_filter=boolean%3Dfalse')
+            .set('Authorization', app_developer_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         0, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with app dev session token (with filter and user session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?with_property=name')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with app dev session token (with property_filter and user session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?property_filter=name%3Dsub_obj_1')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         1, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with app dev session token (with filter and auth session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?with_property=name')
+            .set('Authorization', user_session)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
+            });
+      })
+
+
+      it('try to search with app dev session token (with property_filter and auth session)', function () {
+         this.timeout(10000);
+         return request.get('/api/v1/search?property_filter=name%3D*obj*')
+            .set('Authorization', auth_token_new)
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert.deepEqual(body.meta.total_count,         4, 'Should read 0');
+            });
+      })
+   })
 })
 

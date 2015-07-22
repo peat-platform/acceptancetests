@@ -5,8 +5,8 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest        = require('supertest-as-promised');
-var request          = supertest('https://dev.openi-ict.eu');
-var internal_request = supertest('https://dev.openi-ict.eu:8443');
+var request          = supertest('https://dev.peat-platform.eu');
+var internal_request = supertest('https://dev.peat-platform.eu:8443');
 var assert           = require('chai').assert;
 
 
@@ -16,7 +16,7 @@ var testType = {
    "@context"  : [
       {
          "@property_name": "stringArray",
-         "@openi_type"    : "string",
+         "@type"    : "string",
          "@multiple"     : true,
          "@required"     : true,
          "@context_id"      : "Array of Strings"
@@ -143,7 +143,7 @@ describe('Test Setup', function () {
       });
    });
    describe('Client', function () {
-      it('should create OPENi Application', function () {
+      it('should create PEAT Application', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/clients')
             .send(AppDeveloper.client)
@@ -212,7 +212,7 @@ describe('Test Setup', function () {
          this.timeout(10000);
          return request.post('/api/v1/objects')
             .send({
-               "@openi_type": typeID,
+               "@type": typeID,
                "@data"      : {
                   "stringArray": [
                      "mock string 1",

@@ -179,7 +179,7 @@ var large_obj = {
       "int"       : 1,
       "string"    : "mock string",
       "float"     : 3452.234,
-      "url"       : "https://dev.openi-ict.eu/admin/",
+      "url"       : "https://dev.peat-platform.eu/admin/",
       "date"      : "06-03-1990",
       "timestamp" : "2014-04-20 10:32:55.339",
       "gps"       : "52.29504228453735,-7.895050048828125",
@@ -709,7 +709,7 @@ describe('Objects API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert.deepEqual(body["@id"],         large_obj["@id"], 'Object id should be ' + large_obj["@id"]);
-               assert.deepEqual(body["@openi_type"], large_obj["@openi_type"], 'Object type should be ' + large_obj["@openi_type"]);
+               assert.deepEqual(body["@type"], large_obj["@type"], 'Object type should be ' + large_obj["@type"]);
                assert.deepEqual(body["@data"],       large_obj["@data"], 'Object @data not matching');
             });
       }),
@@ -721,7 +721,7 @@ describe('Objects API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert.deepEqual(body["@id"],         small_obj_1["@id"], 'Object id should be ' + small_obj_1["@id"]);
-               assert.deepEqual(body["@openi_type"], small_obj_1["@openi_type"], 'Object type should be ' + small_obj_1["@openi_type"]);
+               assert.deepEqual(body["@type"], small_obj_1["@type"], 'Object type should be ' + small_obj_1["@type"]);
                assert.deepEqual(body["@data"],       small_obj_1["@data"], 'Object @data not matching');
             });
       }),
@@ -733,7 +733,7 @@ describe('Objects API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert.deepEqual(body["@id"],         small_obj_2["@id"], 'Object id should be ' + small_obj_2["@id"]);
-               assert.deepEqual(body["@openi_type"], small_obj_2["@openi_type"], 'Object type should be ' + small_obj_2["@openi_type"]);
+               assert.deepEqual(body["@type"], small_obj_2["@type"], 'Object type should be ' + small_obj_2["@type"]);
                assert.deepEqual(body["@data"],       small_obj_2["@data"], 'Object @data not matching');
             });
       }),
@@ -745,7 +745,7 @@ describe('Objects API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert.deepEqual(body["@id"],         small_obj_1["@id"], 'Object id should be ' + small_obj_1["@id"]);
-               assert.deepEqual(body["@openi_type"], small_obj_1["@openi_type"], 'Object type should be ' + small_obj_1["@openi_type"]);
+               assert.deepEqual(body["@type"], small_obj_1["@type"], 'Object type should be ' + small_obj_1["@type"]);
                assert.deepEqual(body["@data"], {
                                     "name": "small obj 1",
                                     "sub_obj": {

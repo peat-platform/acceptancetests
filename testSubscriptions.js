@@ -5,8 +5,8 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest        = require('supertest-as-promised');
-var request          = supertest('https://dev.peat-platform.eu');
-var internal_request = supertest('https://dev.peat-platform.eu:8443');
+var request          = supertest('https://dev.peat-platform.org');
+var internal_request = supertest('https://dev.peat-platform.org:8443');
 var assert           = require('chai').assert;
 
 

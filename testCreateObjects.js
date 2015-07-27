@@ -179,7 +179,7 @@ var large_obj = {
       "int"       : 1,
       "string"    : "mock string",
       "float"     : 3452.234,
-      "url"       : "https://dev.peat-platform.eu/admin/",
+      "url"       : "https://dev.peat-platform.org/admin/",
       "date"      : "06-03-1990",
       "timestamp" : "2014-04-20 10:32:55.339",
       "gps"       : "52.29504228453735,-7.895050048828125",

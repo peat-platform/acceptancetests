@@ -100,7 +100,6 @@ describe('Test Setup', function () {
          return request.post('/api/v1/auth/users')
             .send(AppDeveloper.userDetails)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
@@ -116,7 +115,6 @@ describe('Test Setup', function () {
          return request.post('/api/v1/auth/users')
             .send(user.userDetails)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
@@ -134,7 +132,6 @@ describe('Test Setup', function () {
          return request.post('/api/v1/auth/sessions')
             .send(AppDeveloper.userDetails)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["session"] !== undefined, 'User session should be returned');
@@ -149,7 +146,6 @@ describe('Test Setup', function () {
             .send(AppDeveloper.client)
             .set('Accept', 'application/json')
             .set('Authorization',AppDeveloper.session)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["cloudlet"] !== undefined, 'Cloudlet should be returned with client details');
@@ -170,7 +166,6 @@ describe('Test Setup', function () {
                secret  : AppDeveloper.client.secret
             })
             .set('Accept', 'application/json')
-            //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["session"] !== undefined, 'Authorization session should be returned');
@@ -185,7 +180,6 @@ describe('Test Setup', function () {
             .send(AppDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
@@ -199,7 +193,6 @@ describe('Test Setup', function () {
          return request.get('/api/v1/cloudlets')
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, "Object ID Should be returned");
@@ -223,7 +216,6 @@ describe('Test Setup', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, "Object ID Should be returned not " + JSON.stringify(body));
@@ -252,7 +244,6 @@ describe('Subscription Tests', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
@@ -273,7 +264,6 @@ describe('Subscription Tests', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
@@ -294,7 +284,6 @@ describe('Subscription Tests', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
@@ -315,7 +304,6 @@ describe('Subscription Tests', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');
@@ -336,7 +324,6 @@ describe('Subscription Tests', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status == 201, 'Status should be "201".');

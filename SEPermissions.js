@@ -53,9 +53,9 @@ var AppDeveloper = {
       "scope"   : "developer"
    },
    client     : {
-      name       : "Find-a-Friend",
-      isTest     : true,
-      description: "This application uses the Discovery SE to allow users to find their friends, somehow."
+      "name"        : "Find-a-Friend",
+      "isTest"       : true,
+      "description" : "This application uses the Discovery SE to allow users to find their friends, somehow."
    },
    //Hardcoded... NOT GOOD
    permissions: [
@@ -254,9 +254,9 @@ describe('Service Enablers', function () {
             .set('Authorization', AppDeveloper.session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
-               console.log(AppDeveloper.client.api_key)
-               console.log(AppDeveloper.permissions)
-               console.log(SEDeveloper.client)
+               console.log(AppDeveloper.client.api_key);
+               console.log(AppDeveloper.permissions);
+               console.log(SEDeveloper.client);
 
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))

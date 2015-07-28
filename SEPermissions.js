@@ -60,25 +60,25 @@ var AppDeveloper = {
    //Hardcoded... NOT GOOD
    permissions: [
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "CREATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "CLOUDLET",
          "access_type" : "READ"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "UPDATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "DELETE"
@@ -101,12 +101,23 @@ describe('Service Enablers', function () {
                .expect('content-type', 'application/json; charset=utf-8')
                .expect(function (response) {
                   var body = JSON.parse(response.text);
+                  var typeId;
+                  var typePatternExtract       = new RegExp(/t_[a-z0-9]{32}-[0-9]{1,10}/);
                   if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
                      assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
+                     typeId = typePatternExtract.exec(body["error"])[0];
+                     for (var p in AppDeveloper.permissions){
+                        AppDeveloper.permissions[p]["ref"]=typeId
+                     }
                   }
                   else {
                      assert(body["@id"] !== undefined, 'Type ID should be returned');
+                     typeId = body["@id"]
+                     for (var p in AppDeveloper.permissions){
+                        AppDeveloper.permissions[p]["ref"]=body["@id"]
+                     }
                   }
+                  testType["@id"]=typeId
                });
          });
       });
@@ -114,7 +125,7 @@ describe('Service Enablers', function () {
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
-         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
+         return request.get('/api/v1/types/'+testType["@id"])
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -170,7 +181,7 @@ describe('Service Enablers', function () {
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
                SEDeveloper.client = body;
 
-               for ( var i =0; i < AppDeveloper.permissions.length; i++){
+               for ( var i in AppDeveloper.permissions.length){
                   if (AppDeveloper.permissions[i].ref === SEDeveloper.client.name){
                      AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key;
                      AppDeveloper.permissions[i].cloudlet = SEDeveloper.client.cloudlet
@@ -232,7 +243,6 @@ describe('Service Enablers', function () {
       it('should create SE permissions for App', function () {
          this.timeout(10000);
 
-
          return internal_request.put('/api/v1/app_permissions')
             .send({
                "app_api_key"      : AppDeveloper.client.api_key,
@@ -244,6 +254,10 @@ describe('Service Enablers', function () {
             .set('Authorization', AppDeveloper.session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
+               console.log(AppDeveloper.client.api_key)
+               console.log(AppDeveloper.permissions)
+               console.log(SEDeveloper.client)
+
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })

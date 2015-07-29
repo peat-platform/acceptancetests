@@ -38,7 +38,7 @@ var SEDeveloper = {
    client     : {
       name       : "Discovery Service",
       isSE       : true,
-      isTest     : true,
+      //isTest     : false,
       description: "This service enables apps to add social networks features by allowing them search for other users of the app"
    }
 
@@ -54,7 +54,7 @@ var AppDeveloper = {
    },
    client     : {
       "name"        : "Find-a-Friend",
-      "isTest"       : true,
+      //"isTest"       : false,
       "description" : "This application uses the Discovery SE to allow users to find their friends, somehow."
    },
    //Hardcoded... NOT GOOD
@@ -107,14 +107,18 @@ describe('Service Enablers', function () {
                      assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
                      typeId = typePatternExtract.exec(body["error"])[0];
                      for (var p in AppDeveloper.permissions){
-                        AppDeveloper.permissions[p]["ref"]=typeId
+                        if(AppDeveloper.permissions[p]["type"].indexOf("service_enabler") <= -1 ) {
+                           AppDeveloper.permissions[p]["ref"] = typeId
+                        }
                      }
                   }
                   else {
                      assert(body["@id"] !== undefined, 'Type ID should be returned');
                      typeId = body["@id"]
                      for (var p in AppDeveloper.permissions){
-                        AppDeveloper.permissions[p]["ref"]=body["@id"]
+                        if(AppDeveloper.permissions[p]["type"].indexOf("service_enabler") <= 0 ) {
+                           AppDeveloper.permissions[p]["ref"] = body["@id"]
+                        }
                      }
                   }
                   testType["@id"]=typeId
@@ -122,6 +126,7 @@ describe('Service Enablers', function () {
          });
       });
    });
+
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
@@ -135,6 +140,7 @@ describe('Service Enablers', function () {
             .expect(200);
       });
    });
+
    describe('Create Service Enabler', function () {
       it('should create the user "SEDeveloper" on the platform', function () {
          this.timeout(10000);
@@ -180,11 +186,12 @@ describe('Service Enablers', function () {
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
                SEDeveloper.client = body;
+               SEDeveloper.client.app_id = SEDeveloper.client.api_key;
 
-               for ( var i in AppDeveloper.permissions.length){
-                  if (AppDeveloper.permissions[i].ref === SEDeveloper.client.name){
-                     AppDeveloper.permissions[i].app_id   = SEDeveloper.client.api_key;
-                     AppDeveloper.permissions[i].cloudlet = SEDeveloper.client.cloudlet
+               for ( var i in AppDeveloper.permissions){
+                  if (AppDeveloper.permissions[i]["ref"] === SEDeveloper.client.name){
+                     AppDeveloper.permissions[i]["app_id"]   = SEDeveloper.client.api_key;
+                     AppDeveloper.permissions[i]["cloudlet"] = SEDeveloper.client.cloudlet
                   }
                }
             });
@@ -213,7 +220,7 @@ describe('Service Enablers', function () {
       it('should log AppDeveloper into the Platform', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/sessions')
-            .send(SEDeveloper.userDetails)
+            .send(AppDeveloper.userDetails)
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
@@ -254,10 +261,6 @@ describe('Service Enablers', function () {
             .set('Authorization', AppDeveloper.session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
-               console.log(AppDeveloper.client.api_key);
-               console.log(AppDeveloper.permissions);
-               console.log(SEDeveloper.client);
-
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
@@ -385,7 +388,7 @@ describe('Service Enablers', function () {
                this.timeout(10000);
                return request.post('/api/v1/objects')
                   .send({
-                     "@type": "t_078c98b96af6474768d74f916ca70286-163",
+                     "@type": testType["@id"],
                      "@data": {
                         "stringArray": [
                            "mock string " + Math.floor(Math.random() * 101),

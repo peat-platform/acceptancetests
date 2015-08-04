@@ -279,17 +279,20 @@ var permissions_manifest = [
 
 var dev_user = {
    "username": "acceptance_test_platformTestDev",
-   "password": "acceptance_test_platformTestDev"
+   "password": "acceptance_test_platformTestDev",
+   "scope"   : "developer"
 };
 
 var user = {
    "username": "acceptance_test_platformTest",
-   "password": "acceptance_test_platformTest"
+   "password": "acceptance_test_platformTest",
+   "scope"   : "user"
 };
 
 var user_2 = {
    "username": "acceptance_test_platformTest_2",
-   "password": "acceptance_test_platformTest_2"
+   "password": "acceptance_test_platformTest_2",
+   "scope"   : "user"
 };
 
 var client = {

@@ -157,7 +157,8 @@ describe('Authentication API', function () {
          return request.post('/api/v1/auth/sessions')
             .send({
                "username": "platformTest",
-               "password": "platformT"
+               "password": "platformT",
+               "scope"   : "user"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -172,7 +173,8 @@ describe('Authentication API', function () {
          return request.post('/api/v1/auth/sessions')
             .send({
                "username": "platformTestDev",
-               "password": "platformTestDev"
+               "password": "platformTestDev",
+               "scope"   : "developer"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -262,7 +264,7 @@ describe('Permissions API', function () {
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
-            })
+            });
             //.expect(200)
       });
    });
@@ -380,7 +382,8 @@ var getUserSession = function (username, password) {
    return request.post('/api/v1/auth/sessions')
       .send({
          "username": username,
-         "password": password
+         "password": password,
+         "scope"   : "user"
       })
       .set('Accept', 'application/json')
       .expect('content-type', 'application/json; charset=utf-8')

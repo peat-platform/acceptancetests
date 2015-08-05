@@ -32,12 +32,13 @@ var SEDeveloper = {
    session    : "",
    userDetails: {
       username: "SEDeveloper",
-      password: "SEDeveloper"
+      password: "SEDeveloper",
+      scope   : "developer"
    },
    client     : {
       name       : "Discovery Service",
       isSE       : true,
-      isTest     : true,
+      //isTest     : false,
       description: "This service enables apps to add social networks features by allowing them search for other users of the app"
    }
 
@@ -48,35 +49,36 @@ var AppDeveloper = {
    session    : "",
    userDetails: {
       "username": "AppDeveloper",
-      "password": "AppDeveloper"
+      "password": "AppDeveloper",
+      "scope"   : "developer"
    },
    client     : {
-      name       : "Find-a-Friend",
-      isTest     : true,
-      description: "This application uses the Discovery SE to allow users to find their friends, somehow."
+      "name"        : "Find-a-Friend",
+      //"isTest"       : false,
+      "description" : "This application uses the Discovery SE to allow users to find their friends, somehow."
    },
    //Hardcoded... NOT GOOD
    permissions: [
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "CREATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "CLOUDLET",
          "access_type" : "READ"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "UPDATE"
       },
       {
-         "ref"         : "t_078c98b96af6474768d74f916ca70286-163",
+         "ref"         : "",
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "DELETE"
@@ -99,21 +101,36 @@ describe('Service Enablers', function () {
                .expect('content-type', 'application/json; charset=utf-8')
                .expect(function (response) {
                   var body = JSON.parse(response.text);
-                  console.log(body)
+                  var typeId;
+                  var typePatternExtract       = new RegExp(/t_[a-z0-9]{32}-[0-9]{1,10}/);
                   if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
                      assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
+                     typeId = typePatternExtract.exec(body["error"])[0];
+                     for (var p in AppDeveloper.permissions){
+                        if(AppDeveloper.permissions[p]["type"].indexOf("service_enabler") <= -1 ) {
+                           AppDeveloper.permissions[p]["ref"] = typeId
+                        }
+                     }
                   }
                   else {
                      assert(body["@id"] !== undefined, 'Type ID should be returned');
+                     typeId = body["@id"]
+                     for (var p in AppDeveloper.permissions){
+                        if(AppDeveloper.permissions[p]["type"].indexOf("service_enabler") <= 0 ) {
+                           AppDeveloper.permissions[p]["ref"] = body["@id"]
+                        }
+                     }
                   }
+                  testType["@id"]=typeId
                });
          });
       });
    });
+
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
-         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
+         return request.get('/api/v1/types/'+testType["@id"])
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -123,6 +140,7 @@ describe('Service Enablers', function () {
             .expect(200);
       });
    });
+
    describe('Create Service Enabler', function () {
       it('should create the user "SEDeveloper" on the platform', function () {
          this.timeout(10000);
@@ -167,7 +185,15 @@ describe('Service Enablers', function () {
                assert(body["api_key"] !== undefined, '"api_key" should be returned with client details');
                assert(body["secret"] !== undefined, '"secret" should be returned with client details');
                assert(body["isSE"] === true, 'SE not created correctly, "isSE" field does not exist');
-               SEDeveloper.client = body
+               SEDeveloper.client = body;
+               SEDeveloper.client.app_id = SEDeveloper.client.api_key;
+
+               for ( var i in AppDeveloper.permissions){
+                  if (AppDeveloper.permissions[i]["ref"] === SEDeveloper.client.name){
+                     AppDeveloper.permissions[i]["app_id"]   = SEDeveloper.client.api_key;
+                     AppDeveloper.permissions[i]["cloudlet"] = SEDeveloper.client.cloudlet
+                  }
+               }
             });
       });
 
@@ -194,7 +220,7 @@ describe('Service Enablers', function () {
       it('should log AppDeveloper into the Platform', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/sessions')
-            .send(SEDeveloper.userDetails)
+            .send(AppDeveloper.userDetails)
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
@@ -223,7 +249,6 @@ describe('Service Enablers', function () {
 
       it('should create SE permissions for App', function () {
          this.timeout(10000);
-
 
          return internal_request.put('/api/v1/app_permissions')
             .send({
@@ -273,7 +298,8 @@ describe('Service Enablers', function () {
          return request.post('/api/v1/auth/sessions')
             .send({
                "username": username,
-               "password": password
+               "password": password,
+               "scope"   : "user"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -312,7 +338,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -325,7 +351,7 @@ describe('Service Enablers', function () {
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                body = JSON.parse(response.text);
-               assert(body[0]["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
+               assert(body["status"] === 'update', 'Permission status should be {"status":"update"} but was:\n\t' + JSON.stringify(body))
             })
       };
 
@@ -362,7 +388,7 @@ describe('Service Enablers', function () {
                this.timeout(10000);
                return request.post('/api/v1/objects')
                   .send({
-                     "@type": "t_078c98b96af6474768d74f916ca70286-163",
+                     "@type": testType["@id"],
                      "@data": {
                         "stringArray": [
                            "mock string " + Math.floor(Math.random() * 101),
@@ -411,7 +437,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     //console.log(JSON.stringify(body));
                      assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
                      if(parseInt(body["meta"]["total_count"]) > 0) {
                         SEView = body;

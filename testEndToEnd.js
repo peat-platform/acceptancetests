@@ -1,8 +1,9 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-var supertest = require('supertest-as-promised');
-var request = supertest('https://dev.peat-platform.org');
-var assert = require('chai').assert;
+var supertest        = require('supertest-as-promised');
+var request          = supertest('https://dev.peat-platform.org');
+var internal_request = supertest('https://dev.peat-platform.org:8443');
+var assert           = require('chai').assert;
 
 var token;
 
@@ -16,10 +17,27 @@ var testType = {
          "@data_type"    : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@context"      : "Array of Strings"
+         "@description"  : "Array of Strings"
       }
    ]
 };
+
+var dev_user = {
+   "username": "platformTestDev",
+   "password": "platformTestDev"
+};
+
+var user = {
+   "username": "platformTest",
+   "password": "platformTest"
+};
+
+var client = {
+   "name"       : "MochaTest",
+   "description": "Client used for testing of the platform"
+};
+var session = "";
+token = "";
 
 describe('Types API', function () {
    describe('Creating Types', function () {
@@ -43,7 +61,7 @@ describe('Types API', function () {
    describe('Get Type', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
-         return request.get('/api/v1/types/t_078c98b96af6474768d74f916ca70286-163')
+         return request.get('/api/v1/types/t_e18dd069371d528764d51c54d5bf9611-167')
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -83,16 +101,6 @@ describe('Types API', function () {
 
 //-----Authentication API-----
 
-var user = {
-   "username": "platformTest",
-   "password": "platformTest"
-};
-var client = {
-   "name"       : "MochaTest",
-   "description": "Client used for testing of the platform"
-};
-var session = "";
-token = "";
 
 describe('Authentication API', function () {
    describe('Users', function () {
@@ -126,6 +134,22 @@ describe('Authentication API', function () {
                }
             });
       });
+      it('should create a user', function () {
+         this.timeout(10000);
+         return request.post('/api/v1/auth/users')
+            .send(dev_user)
+            .set('Accept', 'application/json')
+            .expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
+                  assert(response.status == 409, 'Error 409 Should be returned if user already exists')
+               }
+               else {
+                  assert(response.status == 201, 'Status should be "201".');
+               }
+            });
+      });
    });
    describe('Session', function () {
       it('should receive error about incorrect details', function () {
@@ -147,8 +171,8 @@ describe('Authentication API', function () {
          this.timeout(10000);
          return request.post('/api/v1/auth/sessions')
             .send({
-               "username": "platformTest",
-               "password": "platformTest"
+               "username": "platformTestDev",
+               "password": "platformTestDev"
             })
             .set('Accept', 'application/json')
             .expect('content-type', 'application/json; charset=utf-8')
@@ -187,7 +211,6 @@ describe('Authentication API', function () {
                secret  : client.secret
             })
             .set('Accept', 'application/json')
-            .set('Authorization', session)
             //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
@@ -206,7 +229,7 @@ describe('Permissions API', function () {
 
       it('should create GenericEntry permissions for client', function () {
          this.timeout(10000);
-         return request.post('/api/v1/permissions')
+         return internal_request.post('/api/v1/permissions/' + client.api_key)
             .send([
                {
                   "ref"         : testType["@id"],
@@ -237,7 +260,6 @@ describe('Permissions API', function () {
             .set('Authorization', token)
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
-               //console.log(response);
                var body = JSON.parse(response.text);
                assert(body["status"] === 'update', 'Permission status should be updated')
             })
@@ -310,19 +332,18 @@ describe('Objects API', function () {
    describe('Deleting Objects', function () {
       it('should delete GenericEntry Object', function () {
          this.timeout(10000);
+         setTimeout(function(){
 
-         setTimeout(function () {
-               return request.delete('/api/v1/objects/' + objectid)
-                  .set('Authorization', token)
-                  //.expect('content-type', 'application/json; charset=utf-8')
-                  .expect(function (response) {
-                     var body = JSON.parse(response.text);
-                     assert(response.status === 200, "Should be 200 for successful delete")
-                  })
-               .expect(200)
+         return request.delete('/api/v1/objects/' + objectid)
+            .set('Authorization', token)
+            //.expect('content-type', 'application/json; charset=utf-8')
+            .expect(function (response) {
+               var body = JSON.parse(response.text);
+               assert(response.status === 200, "Should be 200 for successful delete")
             })
-         }, 3000);
-
+            .expect(200)
+         }, 3000)
+      })
    });
 });
 
@@ -333,7 +354,6 @@ var userSession;
 var userToken;
 
 var createUser = function (username, password) {
-   //console.log("Create");
    return request.post('/api/v1/auth/users')
       .send({
          "username": username,
@@ -343,7 +363,6 @@ var createUser = function (username, password) {
       .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          var body = JSON.parse(response.text);
-         //console.log("Create: "+JSON.stringify(body));
          if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
             assert(response.status == 409, 'Error 409 Should be returned if user already exists')
          }
@@ -357,7 +376,6 @@ var createUser = function (username, password) {
 };
 
 var getUserSession = function (username, password) {
-   //console.log("Session");
    var body;
    return request.post('/api/v1/auth/sessions')
       .send({
@@ -368,7 +386,6 @@ var getUserSession = function (username, password) {
       .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          body = JSON.parse(response.text);
-         //console.log("Session: "+JSON.stringify(body))
          assert(body["session"] !== undefined, 'User session should be returned');
          userSession = body["session"];
       });
@@ -378,7 +395,6 @@ var getUserSession = function (username, password) {
 };
 
 var authenticate = function (username, password, userSession) {
-   //console.log("Auth");
    var body;
    return request.post('/api/v1/auth/authorizations')
       .send({
@@ -392,7 +408,6 @@ var authenticate = function (username, password, userSession) {
       //.expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          body = JSON.parse(response.text);
-         //console.log("AUTH: "+JSON.stringify(body));
          assert(body["session"] !== undefined, 'Authorization session should be returned');
          userToken = body["session"];
       });
@@ -402,9 +417,8 @@ var authenticate = function (username, password, userSession) {
 };
 
 var setPermission = function (typeID, userToken) {
-   //console.log("Perms");
    var body;
-   return request.post('/api/v1/permissions')
+   return internal_request.post('/api/v1/permissions/' + client.api_key)
       .send([
          {
             "ref"         : typeID,
@@ -435,9 +449,7 @@ var setPermission = function (typeID, userToken) {
       .set('Authorization', userToken)
       .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
-         //console.log(response);
          body = JSON.parse(response.text);
-         //console.log("Permission: "+JSON.stringify(body));
          assert(body["status"] === 'update', 'Permission status should be updated')
       })
       .expect(200)

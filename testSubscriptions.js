@@ -5,21 +5,22 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest        = require('supertest-as-promised');
-var request          = supertest('https://dev.peat-platform.org');
-var internal_request = supertest('https://dev.peat-platform.org:8443');
+var config           = require('./config');
+var request          = supertest(config.url);
+var internal_request = supertest(config.internal);
 var assert           = require('chai').assert;
 
 
-var typeID   = "t_55498fbeed28c6a26946af8643e2743d-167";
+var typeID   = "t_e18dd069371d528764d51c54d5bf9611-167";
 var testType = {
    "@reference": "genericExample",
    "@context"  : [
       {
          "@property_name": "stringArray",
-         "@type"    : "string",
+         "@type"         : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@context_id"      : "Array of Strings"
+         "@context_id"   : "Array of Strings"
       }
    ]
 };
@@ -63,25 +64,25 @@ var AppDeveloper = {
    //Hardcoded... NOT GOOD
    permissions: [
       {
-         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
+         "ref"         : typeID,
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "CREATE"
       },
       {
-         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
+         "ref"         : typeID,
          "type"        : "type",
          "access_level": "CLOUDLET",
          "access_type" : "READ"
       },
       {
-         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
+         "ref"         : typeID,
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "UPDATE"
       },
       {
-         "ref"         : "t_55498fbeed28c6a26946af8643e2743d-167",
+         "ref"         : typeID,
          "type"        : "type",
          "access_level": "APP",
          "access_type" : "DELETE"
@@ -106,7 +107,8 @@ describe('Test Setup', function () {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
-                  assert(response.status == 201, 'Status should be "201".');
+                  assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+                  assert(response.status == 201, 'Status should be "201" not ' + response.status);
                }
             });
       });
@@ -121,7 +123,8 @@ describe('Test Setup', function () {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
-                  assert(response.status == 201, 'Status should be "201".');
+                  assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+                  assert(response.status == 201, 'Status should be "201" not ' + response.status);
                }
             });
       });
@@ -245,8 +248,10 @@ describe('Subscription Tests', function () {
             .set('Accept', 'application/json')
             .set('Authorization', user.authToken)
             .expect(function (response) {
+               console.log(user.authToken)
                var body = JSON.parse(response.text);
-               assert(response.status == 201, 'Status should be "201".');
+               assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+               assert(response.status == 201, 'Status should be "201" not ' + response.status);
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
                if (body["id"] !== undefined) {
                   user.subs.push(body["id"])
@@ -266,7 +271,8 @@ describe('Subscription Tests', function () {
             .set('Authorization', user.authToken)
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(response.status == 201, 'Status should be "201".');
+               assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+               assert(response.status == 201, 'Status should be "201" not ' + response.status);
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
                if (body["id"] !== undefined) {
                   user.subs.push(body["id"])
@@ -286,7 +292,8 @@ describe('Subscription Tests', function () {
             .set('Authorization', user.authToken)
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(response.status == 201, 'Status should be "201".');
+               assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+               assert(response.status == 201, 'Status should be "201" not ' + response.status);
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
                if (body["id"] !== undefined) {
                   user.subs.push(body["id"])
@@ -306,6 +313,7 @@ describe('Subscription Tests', function () {
             .set('Authorization', user.authToken)
             .expect(function (response) {
                var body = JSON.parse(response.text);
+               assert(body["error"] === undefined, 'Error occured '+ body["error"]);
                assert(response.status == 201, 'Status should be "201".');
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
                if (body["id"] !== undefined) {
@@ -326,7 +334,8 @@ describe('Subscription Tests', function () {
             .set('Authorization', user.authToken)
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(response.status == 201, 'Status should be "201".');
+               assert(body["error"] === undefined, 'Error occured '+ body["error"]);
+               assert(response.status == 201, 'Status should be "201" not ' + response.status);
                assert(body["id"] !== undefined, "Subscription ID Should be returned");
                if (body["id"] !== undefined) {
                   user.subs.push(body["id"])

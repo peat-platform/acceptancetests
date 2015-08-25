@@ -1,8 +1,9 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest        = require('supertest-as-promised');
-var request          = supertest('https://dev.peat-platform.org');
-var internal_request = supertest('https://dev.peat-platform.org:8443');
+var config           = require('./config');
+var request          = supertest(config.url);
+var internal_request = supertest(config.internal);
 var assert           = require('chai').assert;
 
 var token;
@@ -17,7 +18,7 @@ var testType = {
          "@data_type"    : "string",
          "@multiple"     : true,
          "@required"     : true,
-         "@description"  : "Array of Strings"
+         "@description"      : "Array of Strings"
       }
    ]
 };
@@ -46,14 +47,13 @@ describe('Types API', function () {
          return request.post('/api/v1/types')
             .send(testType)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                if ( body["error"] !== undefined && body["error"].indexOf("Type already exists") > 0 ) {
-                  assert(response.status == 409, 'Message should be "Type already exists" on 409 status')
+                  assert(response.status == 409, 'Message should be "Type already exists" on 409 status, not: ' + response.status)
                }
                else {
-                  assert(body["@id"] !== undefined, 'Type ID should be returned');
+                  assert(body["@id"] !== undefined, 'Type ID should be returned not '+JSON.stringify(body));
                }
             });
       });
@@ -62,7 +62,6 @@ describe('Types API', function () {
       it('should retrieve single type', function () {
          this.timeout(10000);
          return request.get('/api/v1/types/t_e18dd069371d528764d51c54d5bf9611-167')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@reference"] === testType["@reference"], "Body should contain correct Type reference");
@@ -75,7 +74,6 @@ describe('Types API', function () {
       it('should get list of types', function () {
          this.timeout(10000);
          return request.get('/api/v1/types')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["meta"] !== undefined, "Check for 'meta' key");
@@ -88,7 +86,6 @@ describe('Types API', function () {
       it('should get list of type IDs', function () {
          this.timeout(10000);
          return request.get('/api/v1/types?id_only=true')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body.toString().indexOf("@context") === -1, "Should not contain Type Body");
@@ -112,10 +109,9 @@ describe('Authentication API', function () {
                "password": "test"
             })
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["error"] === "The password length must be between 6 and 80 characters.", 'Password Strength error should be returned')
+               assert(body["error"] === "The password length must be between 6 and 80 characters.", 'Password Strength error should be returned not '+JSON.stringify(body))
             });
       });
       it('should create a user', function () {
@@ -123,14 +119,13 @@ describe('Authentication API', function () {
          return request.post('/api/v1/auth/users')
             .send(user)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
-                  assert(response.status == 201, 'Status should be "201".');
+                  assert(response.status == 201, 'Status should be "201" not ' + response.status);
                }
             });
       });
@@ -139,14 +134,13 @@ describe('Authentication API', function () {
          return request.post('/api/v1/auth/users')
             .send(dev_user)
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
-                  assert(response.status == 201, 'Status should be "201".');
+                  assert(response.status == 201, 'Status should be "201" not ' + response.status);
                }
             });
       });
@@ -161,10 +155,9 @@ describe('Authentication API', function () {
                "scope"   : "user"
             })
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["error"] === "Your password and username did not match.", 'Incorrect details error should be returned')
+               assert(body["error"] === "Your password and username did not match.", 'Incorrect details error should be returned not:' + body["error"])
             })
             .expect(400)
       });
@@ -177,10 +170,9 @@ describe('Authentication API', function () {
                "scope"   : "developer"
             })
             .set('Accept', 'application/json')
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["session"] !== undefined, 'User session should be returned');
+               assert(body["session"] !== undefined, 'User session should be returned not '+body);
                session = body["session"];
             });
       });
@@ -192,7 +184,6 @@ describe('Authentication API', function () {
             .send(client)
             .set('Accept', 'application/json')
             .set('Authorization', session)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["cloudlet"] !== undefined, 'Cloudlet should be returned with client details');
@@ -213,7 +204,6 @@ describe('Authentication API', function () {
                secret  : client.secret
             })
             .set('Accept', 'application/json')
-            //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["session"] !== undefined, 'Authorization session should be returned');
@@ -263,7 +253,9 @@ describe('Permissions API', function () {
             .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
-               assert(body["status"] === 'update', 'Permission status should be updated')
+               var result;
+               (body["status"] !== undefined) ? result = body["status"] : result = body["error"];
+               assert(body["status"] === 'update', 'Permission status should be updated not '+result)
             });
             //.expect(200)
       });
@@ -292,7 +284,6 @@ describe('Objects API', function () {
             })
             .set('Accept', 'application/json')
             .set('Authorization', token)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, "Object ID Should be returned");
@@ -305,7 +296,6 @@ describe('Objects API', function () {
          this.timeout(10000);
          return request.get('/api/v1/objects/' + objectid)
             .set('Authorization', token)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, 'Object body should have "@id" key');
@@ -324,7 +314,6 @@ describe('Objects API', function () {
          return request.put('/api/v1/objects/' + objectid)
             .send(object)
             .set('Authorization', token)
-            .expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(body["@id"] !== undefined, 'Update Object responce should have "@id" key');
@@ -338,7 +327,6 @@ describe('Objects API', function () {
 
          return request.delete('/api/v1/objects/' + objectid)
             .set('Authorization', token)
-            //.expect('content-type', 'application/json; charset=utf-8')
             .expect(function (response) {
                var body = JSON.parse(response.text);
                assert(response.status === 200, "Should be 200 for successful delete")
@@ -362,14 +350,13 @@ var createUser = function (username, password) {
          "password": password
       })
       .set('Accept', 'application/json')
-      .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          var body = JSON.parse(response.text);
          if ( body["error"] !== undefined && body["error"].indexOf("exists") > 0 ) {
             assert(response.status == 409, 'Error 409 Should be returned if user already exists')
          }
          else {
-            assert(response.status == 201, 'Status should be "201".');
+            assert(response.status == 201, 'Status should be "201" not ' + response.status);
          }
       });
    //.then(function (err, res) {
@@ -386,7 +373,6 @@ var getUserSession = function (username, password) {
          "scope"   : "user"
       })
       .set('Accept', 'application/json')
-      .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          body = JSON.parse(response.text);
          assert(body["session"] !== undefined, 'User session should be returned');
@@ -408,7 +394,6 @@ var authenticate = function (username, password, userSession) {
       })
       .set('Accept', 'application/json')
       .set('Authorization', userSession)
-      //.expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          body = JSON.parse(response.text);
          assert(body["session"] !== undefined, 'Authorization session should be returned');
@@ -450,7 +435,6 @@ var setPermission = function (typeID, userToken) {
       ])
       .set('Accept', 'application/json')
       .set('Authorization', userToken)
-      .expect('content-type', 'application/json; charset=utf-8')
       .expect(function (response) {
          body = JSON.parse(response.text);
          assert(body["status"] === 'update', 'Permission status should be updated')

@@ -4,8 +4,9 @@
 'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var supertest        = require('supertest-as-promised');
-var request          = supertest('https://dev.peat-platform.org');
-var internal_request = supertest('https://dev.peat-platform.org:8443');
+var config           = require('./config');
+var request          = supertest(config.url);
+var internal_request = supertest(config.internal);
 var assert           = require('chai').assert;
 
 
@@ -154,6 +155,7 @@ describe('Service Enablers', function () {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
+                  assert(body["error"] === undefined, 'Error occured '+ body["error"]);
                   assert(response.status == 201, 'Status should be "201".');
                }
             });
@@ -212,6 +214,7 @@ describe('Service Enablers', function () {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
+                  assert(body["error"] === undefined, 'Error occured '+ body["error"]);
                   assert(response.status == 201, 'Status should be "201".');
                }
             });
@@ -288,6 +291,7 @@ describe('Service Enablers', function () {
                   assert(response.status == 409, 'Error 409 Should be returned if user already exists')
                }
                else {
+                  assert(body["error"] === undefined, 'Error occured '+ body["error"]);
                   assert(response.status == 201, 'Status should be "201".');
                }
             });

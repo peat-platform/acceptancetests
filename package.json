@@ -6,7 +6,8 @@
   "dependencies": {
     "supertest-as-promised": "^2.0.0",
     "chai": "^2.3.0",
-    "supertest": "^0.15.0"
+    "supertest": "^0.15.0",
+    "mocha-jenkins-reporter": "0.1.9"
   },
   "devDependencies": {},
   "scripts": {

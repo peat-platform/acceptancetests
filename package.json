@@ -4,11 +4,11 @@
   "description": "",
   "main": "test1.js",
   "dependencies": {
-    "supertest-as-promised": "^2.0.0",
-    "chai": "^2.3.0",
-    "supertest": "^0.15.0",
-    "mocha-jenkins-reporter": "0.1.9",
-    "mocha" : ""
+    "mocha-jenkins-reporter" : "0.1.9",
+    "mocha"                  : "^2.2.5",
+    "supertest-as-promised"  : "^2.0.0",
+    "chai"                   : "^2.3.0",
+    "supertest"              : "^0.15.0"
   },
   "devDependencies": {},
   "scripts": {

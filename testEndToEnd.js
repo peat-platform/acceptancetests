@@ -40,6 +40,23 @@ var client = {
 var session = "";
 token = "";
 
+
+describe('Teardown', function () {
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_' + dev_user.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+
+   });
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_' + user.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+   });
+});
+
 describe('Types API', function () {
    describe('Creating Types', function () {
       it('should create GenericEntry Type', function () {
@@ -177,6 +194,7 @@ describe('Authentication API', function () {
             });
       });
    });
+
    describe('Client', function () {
       it('should create client on platform using user details', function () {
          this.timeout(10000);
@@ -337,7 +355,7 @@ describe('Objects API', function () {
    });
 });
 
-
+return
 //-----Create Test Users-----
 
 var userSession;

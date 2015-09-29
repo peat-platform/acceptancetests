@@ -91,6 +91,34 @@ var AppDeveloper = {
    ]
 };
 
+
+
+
+describe('Teardown', function () {
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_' + SEDeveloper.userDetails.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+
+   });
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_' + AppDeveloper.userDetails.username)
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+   });
+   it('should delete', function () {
+      this.timeout(10000);
+      return internal_request.delete('/api/v1/crud/users/users_UserTest0')
+         .set('Accept', 'application/json')
+         .set('authorization', "29f81fe0-3097-4e39-975f-50c4bf8698c7")
+   });
+});
+
+
+
+
 describe('Service Enablers', function () {
    describe('Setup', function () {
       describe('Creating Types', function () {
@@ -441,6 +469,8 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
+                     console.log(AppView)
+                     console.log(body)
                      assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
                      if(parseInt(body["meta"]["total_count"]) > 0) {
                         SEView = body;

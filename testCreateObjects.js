@@ -505,6 +505,8 @@ describe('Setup App developer and user', function () {
             });
       });
    });
+
+
    describe('Create Test Client/App', function () {
       it('should create client on platform using user details', function () {
          this.timeout(10000);
@@ -598,6 +600,7 @@ describe('Permissions API', function () {
             });
          //.expect(200)
       });
+
       it('should create GenericEntry permissions for client and second user', function () {
          this.timeout(10000);
          return internal_request.post('/api/v1/permissions/' + client.api_key)

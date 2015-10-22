@@ -278,7 +278,7 @@ describe('Service Enablers', function () {
       });
 
 
-      it('should create SE permissions for App', function () {
+      it('should persist permissions for App', function () {
          this.timeout(10000);
 
          return internal_request.put('/api/v1/app_permissions')
@@ -377,7 +377,7 @@ describe('Service Enablers', function () {
       var setPermissionSE = function (userToken) {
          var body;
          return internal_request.post('/api/v1/permissions/' + SEDeveloper.client.api_key)
-            .send(AppDeveloper.permissions)
+            .send(SEDeveloper.permissions)
             .set('Accept', 'application/json')
             .set('Authorization', userToken)
             //.expect('content-type', 'application/json; charset=utf-8')
@@ -408,10 +408,6 @@ describe('Service Enablers', function () {
             it('should set user permission for application developer', function () {
                this.timeout(10000);
                return setPermission(userToken)
-            });
-            it('should set user permission for SE developer', function () {
-               this.timeout(10000);
-               return setPermissionSE(userToken)
             });
          });
 
@@ -469,8 +465,6 @@ describe('Service Enablers', function () {
                   .expect('content-type', 'application/json; charset=utf-8')
                   .expect(function (response) {
                      var body = JSON.parse(response.text);
-                     console.log(AppView)
-                     console.log(body)
                      assert(parseInt(body["meta"]["total_count"]) > 0, "Object count from Service Enabler Viewpoint should not be 0");
                      if(parseInt(body["meta"]["total_count"]) > 0) {
                         SEView = body;

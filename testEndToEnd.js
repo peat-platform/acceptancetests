@@ -162,6 +162,7 @@ describe('Authentication API', function () {
             });
       });
    });
+
    describe('Session', function () {
       it('should receive error about incorrect details', function () {
          this.timeout(10000);
